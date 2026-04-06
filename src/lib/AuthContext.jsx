@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
-import { base44 } from '@/api/base44Client';
+import { dataService } from '@/api/dataService';
 
 const AuthContext = createContext();
 
@@ -43,12 +43,12 @@ export function AuthProvider({ children }) {
   const seedDemoUsers = async () => {
     try {
       // Check if demo users already exist
-      const demoUsers = await base44.entities.User.filter({ email: 'demo@example.com' });
+      const demoUsers = await dataService.entities.User.filter({ email: 'demo@example.com' });
       if (demoUsers.length > 0) return; // Already seeded
 
       // Create demo user
       const demoPassword = await bcrypt.hash('demo123', 10);
-      await base44.entities.User.create({
+      await dataService.entities.User.create({
         email: 'demo@example.com',
         password: demoPassword,
         name: 'Demo User',
@@ -57,7 +57,7 @@ export function AuthProvider({ children }) {
 
       // Create maryna user
       const marynaPassword = await bcrypt.hash('Maryna123!', 10);
-      await base44.entities.User.create({
+      await dataService.entities.User.create({
         email: 'maryna.schedl@gmail.com',
         password: marynaPassword,
         name: 'Maryna Schedl',
@@ -73,7 +73,7 @@ export function AuthProvider({ children }) {
       setIsLoadingAuth(true);
 
       // Check if user already exists
-      const existingUsers = await base44.entities.User.filter({ email });
+      const existingUsers = await dataService.entities.User.filter({ email });
       if (existingUsers.length > 0) {
         throw new Error('Email already registered');
       }
@@ -82,7 +82,7 @@ export function AuthProvider({ children }) {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create user
-      const userData = await base44.entities.User.create({
+      const userData = await dataService.entities.User.create({
         email,
         password: hashedPassword,
         name: email.split('@')[0],
@@ -108,7 +108,7 @@ export function AuthProvider({ children }) {
       setIsLoadingAuth(true);
 
       // Find user by email
-      const users = await base44.entities.User.filter({ email });
+      const users = await dataService.entities.User.filter({ email });
       if (users.length === 0) {
         throw new Error('Invalid email or password');
       }

@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import { base44 } from "@/api/base44Client";
+import { dataService } from "@/api/dataService";
 import DashboardCard from "@/components/ui/DashboardCard";
 import moment from "moment";
 
 // Get all reports for current user
 const getSubmittedReportsForUser = async (userId) => {
   try {
-    const allReports = await base44.entities.DailyReport.filter({ user_id: userId });
+    const allReports = await dataService.entities.DailyReport.filter({ user_id: userId });
     return allReports.filter((r) => r.submitted === true).sort((a, b) => new Date(b.date) - new Date(a.date));
   } catch (error) {
     console.error("Error loading submitted reports:", error);

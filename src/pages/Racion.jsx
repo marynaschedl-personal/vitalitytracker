@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { dataService } from "@/api/dataService";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { ArrowLeft, X } from "lucide-react";
@@ -74,7 +74,7 @@ export default function Racion() {
 
   async function loadData() {
     const today = moment().format("YYYY-MM-DD");
-    const reports = await base44.entities.DailyReport.filter({ date: today, user_id: user.id });
+    const reports = await dataService.entities.DailyReport.filter({ date: today, user_id: user.id });
     if (reports.length > 0) {
       setTodayReport(reports[0]);
       // Reset consumed map - food selections reset daily
@@ -143,13 +143,13 @@ export default function Racion() {
     const prot = meals.reduce((s, m) => s + m.protein, 0);
 
     if (todayReport) {
-      await base44.entities.DailyReport.update(todayReport.id, {
+      await dataService.entities.DailyReport.update(todayReport.id, {
         calories_consumed: cal,
         protein_consumed: prot,
         meals_count: meals.length,
       });
     } else {
-      const created = await base44.entities.DailyReport.create({
+      const created = await dataService.entities.DailyReport.create({
         user_id: user.id,
         date: today,
         calories_consumed: cal,

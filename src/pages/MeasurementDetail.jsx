@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { dataService } from "@/api/dataService";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { ArrowLeft, X } from "lucide-react";
@@ -89,17 +89,17 @@ export default function MeasurementDetail() {
   async function loadAndSeed() {
     setLoading(true);
     // Only seed if no measurements exist for this type and user
-    const existing = await base44.entities.Measurement.filter({ type, user_id: user.id });
+    const existing = await dataService.entities.Measurement.filter({ type, user_id: user.id });
     if (existing.length === 0 && SEED_DATA[type]) {
       await Promise.all(
-        SEED_DATA[type].map((d) => base44.entities.Measurement.create({ type, user_id: user.id, ...d }))
+        SEED_DATA[type].map((d) => dataService.entities.Measurement.create({ type, user_id: user.id, ...d }))
       );
     }
     loadData();
   }
 
   async function loadData() {
-    const all = await base44.entities.Measurement.filter({ type, user_id: user.id });
+    const all = await dataService.entities.Measurement.filter({ type, user_id: user.id });
     setMeasurements(all.sort((a, b) => new Date(a.date) - new Date(b.date)));
     setLoading(false);
   }
@@ -107,7 +107,7 @@ export default function MeasurementDetail() {
   async function addMeasurement() {
     const value = Number(valueInput);
     if (!value) return;
-    await base44.entities.Measurement.create({
+    await dataService.entities.Measurement.create({
       user_id: user.id,
       type,
       value,

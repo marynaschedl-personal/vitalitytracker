@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { dataService } from "@/api/dataService";
 import { useNavigate } from "react-router-dom";
 import { Tag, LogOut, Settings, CheckCircle } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
@@ -66,16 +66,16 @@ export default function Home() {
     const today = moment().format("YYYY-MM-DD");
 
     // Load measurements for current user - only seed if none exist
-    let allMeasurements = await base44.entities.Measurement.filter({ user_id: user.id });
+    let allMeasurements = await dataService.entities.Measurement.filter({ user_id: user.id });
     if (allMeasurements.length === 0) {
       await Promise.all(
-        SEED_MEASUREMENTS.map((m) => base44.entities.Measurement.create({ ...m, user_id: user.id }))
+        SEED_MEASUREMENTS.map((m) => dataService.entities.Measurement.create({ ...m, user_id: user.id }))
       );
-      allMeasurements = await base44.entities.Measurement.filter({ user_id: user.id });
+      allMeasurements = await dataService.entities.Measurement.filter({ user_id: user.id });
     }
 
     const [reports] = await Promise.all([
-      base44.entities.DailyReport.filter({ date: today, user_id: user.id }),
+      dataService.entities.DailyReport.filter({ date: today, user_id: user.id }),
     ]);
     if (reports.length > 0) setTodayReport(reports[0]);
 
@@ -270,7 +270,7 @@ export default function Home() {
               const mealsCount = report.meals_count || 0;
 
               // Create today's report with all data
-              const created = await base44.entities.DailyReport.create({
+              const created = await dataService.entities.DailyReport.create({
                 user_id: user.id,
                 date: today,
                 steps: stepsCount,
