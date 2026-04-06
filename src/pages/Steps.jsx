@@ -59,13 +59,33 @@ export default function Steps() {
   async function saveSteps() {
     const today = moment().format("YYYY-MM-DD");
     const steps = Number(stepsInput);
-    if (todayReport) {
-      await base44.entities.DailyReport.update(todayReport.id, { steps });
-    } else {
-      await base44.entities.DailyReport.create({ date: today, steps, steps_goal: 7000, calories_goal: 1766, exercises_goal: 3 });
+
+    if (!steps || isNaN(steps) || steps < 0) {
+      alert("Please enter a valid number of steps");
+      return;
     }
-    setShowEdit(false);
-    loadData();
+
+    try {
+      if (todayReport) {
+        await base44.entities.DailyReport.update(todayReport.id, { steps });
+        setTodayReport({ ...todayReport, steps });
+      } else {
+        const created = await base44.entities.DailyReport.create({
+          date: today,
+          steps,
+          steps_goal: 7000,
+          calories_goal: 1766,
+          exercises_goal: 3
+        });
+        setTodayReport(created);
+      }
+      setShowEdit(false);
+      await loadData();
+      alert("✓ Steps updated successfully");
+    } catch (error) {
+      console.error("Error saving steps:", error);
+      alert("Error saving steps");
+    }
   }
 
   if (loading) {

@@ -86,12 +86,9 @@ export default function MeasurementDetail() {
 
   async function loadAndSeed() {
     setLoading(true);
-    // Clear and reseed with correct data
+    // Only seed if no measurements exist for this type
     const existing = await base44.entities.Measurement.filter({ type });
-    if (existing.length > 0) {
-      await Promise.all(existing.map((m) => base44.entities.Measurement.delete(m.id)));
-    }
-    if (SEED_DATA[type]) {
+    if (existing.length === 0 && SEED_DATA[type]) {
       await Promise.all(SEED_DATA[type].map((d) => base44.entities.Measurement.create({ type, ...d })));
     }
     loadData();
