@@ -68,12 +68,17 @@ export default function Login() {
             {loading ? 'Logging in...' : 'Login'}
           </Button>
 
-          <p className="text-xs text-muted-foreground text-center mt-4">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-primary hover:underline font-medium">
-              Register here
-            </Link>
-          </p>
+          <div className="space-y-2 text-xs text-muted-foreground text-center mt-4">
+            <p>
+              Demo: demo@example.com / demo123
+            </p>
+            <p>
+              Or{' '}
+              <Link to="/register" className="text-primary hover:underline font-medium">
+                create a new account
+              </Link>
+            </p>
+          </div>
         </form>
       </div>
     </div>

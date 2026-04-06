@@ -18,6 +18,9 @@ export function AuthProvider({ children }) {
         setIsLoadingPublicSettings(true);
         setIsLoadingAuth(true);
 
+        // Seed demo users on first app load
+        await seedDemoUsers();
+
         // Simulate checking auth status
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
@@ -36,6 +39,34 @@ export function AuthProvider({ children }) {
 
     checkAuth();
   }, []);
+
+  const seedDemoUsers = async () => {
+    try {
+      // Check if demo users already exist
+      const demoUsers = await base44.entities.User.filter({ email: 'demo@example.com' });
+      if (demoUsers.length > 0) return; // Already seeded
+
+      // Create demo user
+      const demoPassword = await bcrypt.hash('demo123', 10);
+      await base44.entities.User.create({
+        email: 'demo@example.com',
+        password: demoPassword,
+        name: 'Demo User',
+        created_at: new Date().toISOString(),
+      });
+
+      // Create maryna user
+      const marynaPassword = await bcrypt.hash('Maryna123!', 10);
+      await base44.entities.User.create({
+        email: 'maryna.schedl@gmail.com',
+        password: marynaPassword,
+        name: 'Maryna Schedl',
+        created_at: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.log('Demo users already seeded or error creating them:', error.message);
+    }
+  };
 
   const register = async (email, password) => {
     try {
