@@ -24,13 +24,28 @@ class EntityAPI {
   constructor(entityName) {
     this.entityName = entityName;
     this.storageKey = `vitality_${entityName}`;
+    this.legacyStorageKey = `base44_${entityName}`; // For migration
   }
 
   getStorage() {
     if (typeof window === 'undefined') return [];
     try {
-      const data = localStorage.getItem(this.storageKey);
-      return data ? JSON.parse(data) : [];
+      // Try new storage key first
+      let data = localStorage.getItem(this.storageKey);
+      if (data) {
+        return JSON.parse(data);
+      }
+
+      // Fall back to legacy storage key for migration
+      data = localStorage.getItem(this.legacyStorageKey);
+      if (data) {
+        const parsed = JSON.parse(data);
+        // Migrate to new key
+        this.setStorage(parsed);
+        return parsed;
+      }
+
+      return [];
     } catch (error) {
       console.error(`Error reading ${this.entityName} from storage:`, error);
       return [];
