@@ -81,18 +81,18 @@ export default function Steps() {
     try {
       if (todayReport) {
         await base44.entities.DailyReport.update(todayReport.id, { steps });
-        setTodayReport({ ...todayReport, steps });
       } else {
-        const created = await base44.entities.DailyReport.create({
+        await base44.entities.DailyReport.create({
+          user_id: user.id,
           date: today,
           steps,
           steps_goal: 7000,
           calories_goal: 1766,
           exercises_goal: 3
         });
-        setTodayReport(created);
       }
       setShowEdit(false);
+      setStepsInput("");
       await loadData();
       alert("✓ Steps updated successfully");
     } catch (error) {
