@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import { base44 } from "@/api/base44Client";
 import DashboardCard from "@/components/ui/DashboardCard";
+import moment from "moment";
 
 const THEMES = [
   {
@@ -83,6 +85,8 @@ export default function Settings() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [currentTheme, setCurrentTheme] = useState("dark");
+  const [submittedReports, setSubmittedReports] = useState([]);
+  const [loadingReports, setLoadingReports] = useState(true);
 
   useEffect(() => {
     const saved = localStorage.getItem("theme");
@@ -90,7 +94,20 @@ export default function Settings() {
       setCurrentTheme(saved);
       applyTheme(saved);
     }
+    loadSubmittedReports();
   }, []);
+
+  const loadSubmittedReports = async () => {
+    try {
+      const allReports = await base44.entities.DailyReport.list("-date", 100);
+      const submitted = allReports.filter((r) => r.submitted === true);
+      setSubmittedReports(submitted);
+    } catch (error) {
+      console.error("Error loading submitted reports:", error);
+    } finally {
+      setLoadingReports(false);
+    }
+  };
 
   const applyTheme = (themeId) => {
     const theme = THEMES.find((t) => t.id === themeId);
@@ -143,6 +160,35 @@ export default function Settings() {
           </button>
         ))}
       </div>
+
+      <DashboardCard className="mb-4">
+        <h2 className="font-semibold mb-2">Saved Reports</h2>
+        <p className="text-xs text-muted-foreground mb-4">Days you've submitted</p>
+        {loadingReports ? (
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        ) : submittedReports.length > 0 ? (
+          <div className="space-y-2">
+            {submittedReports.map((report) => (
+              <div
+                key={report.id}
+                className="flex items-center justify-between p-3 bg-secondary rounded-lg"
+              >
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  <div>
+                    <p className="text-sm font-medium">{moment(report.date).format("ddd, MMM DD, YYYY")}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {report.steps || 0} steps • {report.calories_consumed || 0} kcal
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No saved reports yet</p>
+        )}
+      </DashboardCard>
 
       <button
         onClick={handleLogout}

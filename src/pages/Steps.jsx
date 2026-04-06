@@ -49,9 +49,18 @@ export default function Steps() {
       allReports = await base44.entities.DailyReport.list("-date", 30);
     }
 
-    setReports(allReports);
+    // Deduplicate by date - keep the latest entry for each date
+    const uniqueByDate = {};
+    allReports.forEach((r) => {
+      if (!uniqueByDate[r.date] || new Date(r.id || 0) > new Date(uniqueByDate[r.date].id || 0)) {
+        uniqueByDate[r.date] = r;
+      }
+    });
+    const deduplicatedReports = Object.values(uniqueByDate).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    setReports(deduplicatedReports);
     const today = moment().format("YYYY-MM-DD");
-    const todayR = allReports.find((r) => r.date === today);
+    const todayR = deduplicatedReports.find((r) => r.date === today);
     setTodayReport(todayR || null);
     setLoading(false);
   }
