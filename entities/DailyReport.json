@@ -1,0 +1,80 @@
+{
+  "name": "DailyReport",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the report"
+    },
+    "calories_consumed": {
+      "type": "number",
+      "default": 0,
+      "description": "Total calories consumed"
+    },
+    "calories_goal": {
+      "type": "number",
+      "default": 1766,
+      "description": "Calorie goal"
+    },
+    "protein_consumed": {
+      "type": "number",
+      "default": 0,
+      "description": "Total protein in grams"
+    },
+    "steps": {
+      "type": "number",
+      "default": 0,
+      "description": "Steps taken"
+    },
+    "steps_goal": {
+      "type": "number",
+      "default": 7000,
+      "description": "Steps goal"
+    },
+    "exercises_done": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of exercises done"
+    },
+    "exercises_goal": {
+      "type": "number",
+      "default": 3,
+      "description": "Weekly exercise goal"
+    },
+    "meals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "calories": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "consumed_grams": {
+            "type": "number"
+          },
+          "target_grams": {
+            "type": "number"
+          },
+          "category": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Food items consumed"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Daily notes"
+    }
+  },
+  "required": [
+    "date"
+  ]
+}

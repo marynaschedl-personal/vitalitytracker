@@ -1,0 +1,45 @@
+{
+  "name": "Measurement",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "weight",
+        "shoulder",
+        "chest",
+        "waist",
+        "hips",
+        "thigh"
+      ],
+      "description": "Type of measurement"
+    },
+    "value": {
+      "type": "number",
+      "description": "Measurement value"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "kg",
+        "cm"
+      ],
+      "default": "cm",
+      "description": "Unit of measurement"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of measurement"
+    },
+    "goal_value": {
+      "type": "number",
+      "description": "Target goal value"
+    }
+  },
+  "required": [
+    "type",
+    "value",
+    "date"
+  ]
+}

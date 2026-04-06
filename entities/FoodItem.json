@@ -1,0 +1,45 @@
+{
+  "name": "FoodItem",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Food name"
+    },
+    "calories_per_100g": {
+      "type": "number",
+      "description": "Calories per 100g"
+    },
+    "protein_per_100g": {
+      "type": "number",
+      "description": "Protein per 100g"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "А",
+        "Б",
+        "В",
+        "Г",
+        "Д",
+        "Е",
+        "Ж"
+      ],
+      "description": "Food category"
+    },
+    "default_serving": {
+      "type": "number",
+      "description": "Default serving size in grams"
+    },
+    "unit": {
+      "type": "string",
+      "default": "г",
+      "description": "Unit (г or шт)"
+    }
+  },
+  "required": [
+    "name",
+    "calories_per_100g",
+    "category"
+  ]
+}
