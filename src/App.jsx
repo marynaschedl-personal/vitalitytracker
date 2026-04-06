@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Home from './pages/Home';
 import Racion from './pages/Racion';
 import Exercises from './pages/Exercises';
@@ -95,11 +96,12 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // If not authenticated, show login
+  // If not authenticated, show login/register
   if (!user) {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/lib/AuthContext";
 import { ArrowLeft, X } from "lucide-react";
 import DashboardCard from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ const SEED_STEPS_DATA = [
 
 export default function Steps() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [reports, setReports] = useState([]);
   const [todayReport, setTodayReport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,13 +42,15 @@ export default function Steps() {
   useEffect(() => { loadData(); }, []);
 
   async function loadData() {
-    // Check if we have reports and seed if needed
-    let allReports = await base44.entities.DailyReport.list("-date", 30);
+    // Check if we have reports for this user and seed if needed
+    let allReports = await base44.entities.DailyReport.filter({ user_id: user.id });
 
     // If no reports, seed with sample data
     if (allReports.length === 0) {
-      await Promise.all(SEED_STEPS_DATA.map((d) => base44.entities.DailyReport.create(d)));
-      allReports = await base44.entities.DailyReport.list("-date", 30);
+      await Promise.all(
+        SEED_STEPS_DATA.map((d) => base44.entities.DailyReport.create({ ...d, user_id: user.id }))
+      );
+      allReports = await base44.entities.DailyReport.filter({ user_id: user.id });
     }
 
     // Deduplicate by date - keep the latest entry for each date

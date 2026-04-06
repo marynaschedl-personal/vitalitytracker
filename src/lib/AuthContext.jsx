@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import bcrypt from 'bcryptjs';
+import { base44 } from '@/api/base44Client';
 
 const AuthContext = createContext();
 
@@ -35,15 +37,65 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
+  const register = async (email, password) => {
+    try {
+      setIsLoadingAuth(true);
+
+      // Check if user already exists
+      const existingUsers = await base44.entities.User.filter({ email });
+      if (existingUsers.length > 0) {
+        throw new Error('Email already registered');
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user
+      const userData = await base44.entities.User.create({
+        email,
+        password: hashedPassword,
+        name: email.split('@')[0],
+        created_at: new Date().toISOString(),
+      });
+
+      // Login user after registration
+      const sessionData = { id: userData.id, email: userData.email, name: userData.name };
+      setUser(sessionData);
+      localStorage.setItem('user', JSON.stringify(sessionData));
+      setAuthError(null);
+      return sessionData;
+    } catch (err) {
+      setAuthError({ type: 'auth_error', message: err.message });
+      throw err;
+    } finally {
+      setIsLoadingAuth(false);
+    }
+  };
+
   const login = async (email, password) => {
     try {
       setIsLoadingAuth(true);
-      // Simulate login
-      const userData = { id: '1', email, name: email.split('@')[0] };
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+
+      // Find user by email
+      const users = await base44.entities.User.filter({ email });
+      if (users.length === 0) {
+        throw new Error('Invalid email or password');
+      }
+
+      const user = users[0];
+
+      // Verify password
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        throw new Error('Invalid email or password');
+      }
+
+      // Login successful
+      const sessionData = { id: user.id, email: user.email, name: user.name };
+      setUser(sessionData);
+      localStorage.setItem('user', JSON.stringify(sessionData));
       setAuthError(null);
-      return userData;
+      return sessionData;
     } catch (err) {
       setAuthError({ type: 'auth_error', message: err.message });
       throw err;
@@ -70,6 +122,7 @@ export function AuthProvider({ children }) {
       isLoadingPublicSettings,
       authError,
       login,
+      register,
       logout,
       navigateToLogin,
     }}>

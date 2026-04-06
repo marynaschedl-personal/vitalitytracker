@@ -1,0 +1,28 @@
+{
+  "name": "User",
+  "description": "User account information",
+  "fields": {
+    "id": {
+      "type": "string",
+      "description": "Unique user identifier"
+    },
+    "email": {
+      "type": "string",
+      "description": "User email address",
+      "required": true
+    },
+    "password": {
+      "type": "string",
+      "description": "Hashed password (bcryptjs)",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "description": "User display name"
+    },
+    "created_at": {
+      "type": "string",
+      "description": "Account creation timestamp"
+    }
+  }
+}

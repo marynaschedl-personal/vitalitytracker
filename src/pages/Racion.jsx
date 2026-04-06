@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/lib/AuthContext";
 import { ArrowLeft, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -62,6 +63,7 @@ function calcProt(item, grams) {
 
 export default function Racion() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [consumed, setConsumed] = useState({}); // { foodId: grams }
   const [selected, setSelected] = useState(null); // food item
   const [sliderVal, setSliderVal] = useState(0);
@@ -72,7 +74,7 @@ export default function Racion() {
 
   async function loadData() {
     const today = moment().format("YYYY-MM-DD");
-    const reports = await base44.entities.DailyReport.filter({ date: today });
+    const reports = await base44.entities.DailyReport.filter({ date: today, user_id: user.id });
     if (reports.length > 0) {
       setTodayReport(reports[0]);
       // Reset consumed map - food selections reset daily
@@ -148,6 +150,7 @@ export default function Racion() {
       });
     } else {
       const created = await base44.entities.DailyReport.create({
+        user_id: user.id,
         date: today,
         calories_consumed: cal,
         protein_consumed: prot,

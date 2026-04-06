@@ -12,6 +12,7 @@ class Base44Client {
     this.token = appParams.token;
     this.baseUrl = appParams.appBaseUrl;
     this.entities = {
+      User: new EntityAPI('User'),
       DailyReport: new EntityAPI('DailyReport'),
       Measurement: new EntityAPI('Measurement'),
       FoodItem: new EntityAPI('FoodItem'),

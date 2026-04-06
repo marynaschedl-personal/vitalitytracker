@@ -6,6 +6,17 @@ import { base44 } from "@/api/base44Client";
 import DashboardCard from "@/components/ui/DashboardCard";
 import moment from "moment";
 
+// Get all reports for current user
+const getSubmittedReportsForUser = async (userId) => {
+  try {
+    const allReports = await base44.entities.DailyReport.filter({ user_id: userId });
+    return allReports.filter((r) => r.submitted === true).sort((a, b) => new Date(b.date) - new Date(a.date));
+  } catch (error) {
+    console.error("Error loading submitted reports:", error);
+    return [];
+  }
+};
+
 const THEMES = [
   {
     id: "light",
@@ -83,7 +94,7 @@ const THEMES = [
 
 export default function Settings() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [currentTheme, setCurrentTheme] = useState("dark");
   const [submittedReports, setSubmittedReports] = useState([]);
   const [loadingReports, setLoadingReports] = useState(true);
@@ -99,9 +110,8 @@ export default function Settings() {
 
   const loadSubmittedReports = async () => {
     try {
-      const allReports = await base44.entities.DailyReport.list("-date", 100);
-      const submitted = allReports.filter((r) => r.submitted === true);
-      setSubmittedReports(submitted);
+      const reports = await getSubmittedReportsForUser(user.id);
+      setSubmittedReports(reports);
     } catch (error) {
       console.error("Error loading submitted reports:", error);
     } finally {

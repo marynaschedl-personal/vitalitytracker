@@ -49,7 +49,7 @@ const SEED_MEASUREMENTS = [
 
 export default function Home() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [todayReport, setTodayReport] = useState(null);
   const [measurements, setMeasurements] = useState({});
   const [loading, setLoading] = useState(true);
@@ -65,15 +65,17 @@ export default function Home() {
   async function loadData() {
     const today = moment().format("YYYY-MM-DD");
 
-    // Load measurements - only seed if none exist
-    let allMeasurements = await base44.entities.Measurement.list("-date", 200);
+    // Load measurements for current user - only seed if none exist
+    let allMeasurements = await base44.entities.Measurement.filter({ user_id: user.id });
     if (allMeasurements.length === 0) {
-      await Promise.all(SEED_MEASUREMENTS.map((m) => base44.entities.Measurement.create(m)));
-      allMeasurements = await base44.entities.Measurement.list("-date", 200);
+      await Promise.all(
+        SEED_MEASUREMENTS.map((m) => base44.entities.Measurement.create({ ...m, user_id: user.id }))
+      );
+      allMeasurements = await base44.entities.Measurement.filter({ user_id: user.id });
     }
 
     const [reports] = await Promise.all([
-      base44.entities.DailyReport.filter({ date: today }),
+      base44.entities.DailyReport.filter({ date: today, user_id: user.id }),
     ]);
     if (reports.length > 0) setTodayReport(reports[0]);
 
@@ -269,6 +271,7 @@ export default function Home() {
 
               // Create today's report with all data
               const created = await base44.entities.DailyReport.create({
+                user_id: user.id,
                 date: today,
                 steps: stepsCount,
                 calories_consumed: caloriesConsumed,
