@@ -212,6 +212,18 @@ export default function Home() {
         </div>
 
         {/* Measurements with Charts */}
+        {!weight && Object.keys(measurements).length === 0 && (
+          <div className="bg-card border border-border rounded-lg p-6 text-center space-y-3">
+            <p className="text-sm text-muted-foreground">Add your first measurements to see detailed tracking widgets</p>
+            <button
+              onClick={() => navigate("/measurements")}
+              className="inline-block px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              Add Measurements
+            </button>
+          </div>
+        )}
+
         {weight && (
           <DashboardCard onClick={() => navigate("/measurements/weight")}>
             <div className="flex items-center justify-between">
