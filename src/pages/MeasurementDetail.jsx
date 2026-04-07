@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { apiClient } from "@/api/apiClient";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { useLanguage } from "@/lib/LanguageContext";
 import { ArrowLeft, X } from "lucide-react";
 import DashboardCard from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/button";
@@ -11,14 +12,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import moment from "moment";
 
-const typeLabels = {
-  weight: "Weight",
-  shoulder: "Shoulder circumference",
-  chest: "Chest circumference",
-  waist: "Waist circumference",
-  hips: "Hip circumference",
-  thigh: "Thigh circumference",
-};
+const getTypeLabels = (t) => ({
+  weight: t('measurements_weight'),
+  shoulder: t('measurements_shoulder'),
+  chest: t('measurements_chest'),
+  waist: t('measurements_waist'),
+  hips: t('measurements_hip'),
+  thigh: t('measurements_thigh'),
+});
 
 const typeUnits = {
   weight: "kg",
@@ -78,6 +79,8 @@ export default function MeasurementDetail() {
   const { type } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
+  const typeLabels = getTypeLabels(t);
   const [measurements, setMeasurements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showEdit, setShowEdit] = useState(false);
@@ -121,7 +124,7 @@ export default function MeasurementDetail() {
       await loadData();
     } catch (error) {
       console.error('Error adding measurement:', error);
-      alert('Error adding measurement');
+      alert(t('measurement_detail_error'));
     }
   }
 
@@ -155,30 +158,30 @@ export default function MeasurementDetail() {
           <h1 className="text-xl font-bold">{label}</h1>
         </div>
         <button onClick={() => { setValueInput(""); setGoalInput(latest?.goal_value ? String(latest.goal_value) : ""); setShowEdit(true); }} className="text-primary font-medium text-sm">
-          Edit
+          {t('measurement_detail_edit')}
         </button>
       </div>
 
       {latest ? (
         <div className="space-y-3">
           <DashboardCard>
-            <p className="font-semibold">Total change</p>
-            <p className="text-xs text-muted-foreground">Change since first measurement</p>
+            <p className="font-semibold">{t('measurement_detail_total_change')}</p>
+            <p className="text-xs text-muted-foreground">{t('measurement_detail_change_desc')}</p>
             <p className="text-4xl font-bold mt-3">{totalChange > 0 ? "+" : ""}{totalChange.toFixed(1)} {unit}</p>
-            <p className="text-sm text-muted-foreground mt-1">From {first.value} {unit} to {latest.value} {unit}</p>
-            {latest.goal_value && <p className="text-sm text-muted-foreground">Goal: {latest.goal_value} {unit}</p>}
+            <p className="text-sm text-muted-foreground mt-1">{t('measurement_detail_from_to').replace('{N}', first.value).replace('{unit}', unit).replace('{N}', latest.value)}</p>
+            {latest.goal_value && <p className="text-sm text-muted-foreground">{t('measurement_detail_goal').replace('{N}', latest.goal_value).replace('{unit}', unit)}</p>}
           </DashboardCard>
 
           <DashboardCard>
-            <p className="font-semibold">Average change</p>
-            <p className="text-xs text-muted-foreground">Average change per measurement</p>
+            <p className="font-semibold">{t('measurement_detail_avg_change')}</p>
+            <p className="text-xs text-muted-foreground">{t('measurement_detail_avg_desc')}</p>
             <p className="text-4xl font-bold mt-3">{avgChange > 0 ? "+" : ""}{avgChange.toFixed(1)} {unit}</p>
-            <p className="text-sm text-muted-foreground mt-1">per measurement</p>
+            <p className="text-sm text-muted-foreground mt-1">{t('measurement_detail_per_measurement')}</p>
           </DashboardCard>
 
           <DashboardCard>
-            <p className="font-semibold">{label} history</p>
-            <p className="text-xs text-muted-foreground mb-4">Your measurements over time</p>
+            <p className="font-semibold">{t('measurement_detail_history').replace('{label}', label)}</p>
+            <p className="text-xs text-muted-foreground mb-4">{t('measurement_detail_history_desc')}</p>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
@@ -196,15 +199,15 @@ export default function MeasurementDetail() {
         </div>
       ) : (
         <DashboardCard className="text-center py-12">
-          <p className="text-muted-foreground">No measurements yet</p>
-          <Button className="mt-4" onClick={() => setShowEdit(true)}>Add first measurement</Button>
+          <p className="text-muted-foreground">{t('measurement_detail_no_measurements')}</p>
+          <Button className="mt-4" onClick={() => setShowEdit(true)}>{t('measurement_detail_add_first')}</Button>
         </DashboardCard>
       )}
 
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
         <DialogContent className="bg-card border-border">
           <DialogHeader className="flex items-center justify-between">
-            <DialogTitle>Add measurement</DialogTitle>
+            <DialogTitle>{t('measurement_detail_add_title')}</DialogTitle>
             <button
               onClick={() => setShowEdit(false)}
               className="text-muted-foreground hover:text-foreground transition-colors"
@@ -214,14 +217,14 @@ export default function MeasurementDetail() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Value ({unit})</Label>
-              <Input type="number" value={valueInput} onChange={(e) => setValueInput(e.target.value)} placeholder={`Enter value in ${unit}`} className="bg-secondary border-border" />
+              <Label>{t('measurement_detail_value_label').replace('{unit}', unit)}</Label>
+              <Input type="number" value={valueInput} onChange={(e) => setValueInput(e.target.value)} placeholder={t('measurement_detail_value_placeholder').replace('{unit}', unit)} className="bg-secondary border-border" />
             </div>
             <div>
-              <Label>Goal ({unit}) — optional</Label>
-              <Input type="number" value={goalInput} onChange={(e) => setGoalInput(e.target.value)} placeholder="Target value" className="bg-secondary border-border" />
+              <Label>{t('measurement_detail_goal_label').replace('{unit}', unit)}</Label>
+              <Input type="number" value={goalInput} onChange={(e) => setGoalInput(e.target.value)} placeholder={t('measurement_detail_goal_placeholder')} className="bg-secondary border-border" />
             </div>
-            <Button onClick={addMeasurement} className="w-full" disabled={!valueInput}>Save</Button>
+            <Button onClick={addMeasurement} className="w-full" disabled={!valueInput}>{t('save')}</Button>
           </div>
         </DialogContent>
       </Dialog>

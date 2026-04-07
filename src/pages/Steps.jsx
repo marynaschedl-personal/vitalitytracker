@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { apiClient } from "@/api/apiClient";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { useLanguage } from "@/lib/LanguageContext";
 import { ArrowLeft, X } from "lucide-react";
 import DashboardCard from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ const SEED_STEPS_DATA = [
 export default function Steps() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [reports, setReports] = useState([]);
   const [todayReport, setTodayReport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -76,7 +78,7 @@ export default function Steps() {
     const steps = Number(stepsInput);
 
     if (!steps || isNaN(steps) || steps < 0) {
-      setSaveError("Please enter a valid number of steps");
+      setSaveError(t('steps_validation_error'));
       setSaving(false);
       return;
     }
@@ -113,7 +115,7 @@ export default function Steps() {
       await loadData();
     } catch (error) {
       console.error("Error saving steps:", error);
-      setSaveError(error.message || 'Failed to save steps');
+      setSaveError(error.message || t('steps_failed'));
       setSaving(false);
     }
   }
@@ -145,22 +147,22 @@ export default function Steps() {
           <button onClick={() => navigate("/")} className="text-muted-foreground">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-xl font-bold">Steps</h1>
+          <h1 className="text-xl font-bold">{t('steps_title')}</h1>
         </div>
         <button onClick={() => { setStepsInput(String(todayReport?.steps || 0)); setShowEdit(true); }} className="text-primary font-medium text-sm">
-          Edit
+          {t('steps_edit_btn')}
         </button>
       </div>
 
       <DashboardCard className="mb-3">
-        <p className="font-semibold">Weekly average</p>
-        <p className="text-xs text-muted-foreground">Average steps per day this week</p>
+        <p className="font-semibold">{t('steps_weekly_average')}</p>
+        <p className="text-xs text-muted-foreground">{t('steps_weekly_avg_desc')}</p>
         <p className="text-4xl font-bold mt-3">{weekAvg.toLocaleString()}</p>
       </DashboardCard>
 
       <DashboardCard>
-        <p className="font-semibold mb-1">Daily steps</p>
-        <p className="text-xs text-muted-foreground mb-4">Your steps over the past days</p>
+        <p className="font-semibold mb-1">{t('steps_daily_steps')}</p>
+        <p className="text-xs text-muted-foreground mb-4">{t('steps_daily_desc')}</p>
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
@@ -177,7 +179,7 @@ export default function Steps() {
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
         <DialogContent className="bg-card border-border">
           <DialogHeader className="flex items-center justify-between">
-            <DialogTitle>Edit steps</DialogTitle>
+            <DialogTitle>{t('steps_edit_title')}</DialogTitle>
             <button
               onClick={() => setShowEdit(false)}
               className="text-muted-foreground hover:text-foreground transition-colors"
@@ -187,14 +189,14 @@ export default function Steps() {
             </button>
           </DialogHeader>
           <div className="space-y-4">
-            <Input type="number" value={stepsInput} onChange={(e) => setStepsInput(e.target.value)} placeholder="Number of steps" className="bg-secondary border-border" disabled={saving} />
+            <Input type="number" value={stepsInput} onChange={(e) => setStepsInput(e.target.value)} placeholder={t('steps_input_placeholder')} className="bg-secondary border-border" disabled={saving} />
             {saveError && (
               <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
                 {saveError}
               </div>
             )}
             <Button onClick={saveSteps} className="w-full" disabled={saving}>
-              {saving ? 'Saving...' : 'Save'}
+              {saving ? t('steps_saving') : t('save')}
             </Button>
           </div>
         </DialogContent>
