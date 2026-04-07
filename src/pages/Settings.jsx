@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import { dataService } from "@/api/dataService";
+import { apiClient } from "@/api/apiClient";
 import DashboardCard from "@/components/ui/DashboardCard";
 import moment from "moment";
 
 // Get all reports for current user
-const getSubmittedReportsForUser = async (userId) => {
+const getSubmittedReportsForUser = async () => {
   try {
-    const allReports = await dataService.entities.DailyReport.filter({ user_id: userId });
+    const allReports = await apiClient.entities.DailyReport.list();
     return allReports.filter((r) => r.submitted === true).sort((a, b) => new Date(b.date) - new Date(a.date));
   } catch (error) {
     console.error("Error loading submitted reports:", error);
@@ -110,7 +110,7 @@ export default function Settings() {
 
   const loadSubmittedReports = async () => {
     try {
-      const reports = await getSubmittedReportsForUser(user.id);
+      const reports = await getSubmittedReportsForUser();
       setSubmittedReports(reports);
     } catch (error) {
       console.error("Error loading submitted reports:", error);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { dataService } from "@/api/dataService";
+import { apiClient } from "@/api/apiClient";
 import { useNavigate } from "react-router-dom";
 import { Tag, LogOut, Settings, CheckCircle } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
@@ -65,20 +65,23 @@ export default function Home() {
   async function loadData() {
     const today = moment().format("YYYY-MM-DD");
 
-    // Load measurements for current user
-    // Only seed measurements for maryna.schedl@gmail.com
-    let allMeasurements = await dataService.entities.Measurement.filter({ user_id: user.id });
-    if (allMeasurements.length === 0 && user.email === 'maryna.schedl@gmail.com') {
-      await Promise.all(
-        SEED_MEASUREMENTS.map((m) => dataService.entities.Measurement.create({ ...m, user_id: user.id }))
-      );
-      allMeasurements = await dataService.entities.Measurement.filter({ user_id: user.id });
+    // Load measurements for current user via API
+    let allMeasurements = [];
+    try {
+      allMeasurements = await apiClient.entities.Measurement.list();
+    } catch (error) {
+      console.error('Error loading measurements:', error);
     }
 
-    const [reports] = await Promise.all([
-      dataService.entities.DailyReport.filter({ date: today, user_id: user.id }),
-    ]);
-    if (reports.length > 0) setTodayReport(reports[0]);
+    // Load daily reports via API
+    let reports = [];
+    try {
+      const allReports = await apiClient.entities.DailyReport.list();
+      reports = allReports.filter((r) => r.date === today);
+      if (reports.length > 0) setTodayReport(reports[0]);
+    } catch (error) {
+      console.error('Error loading daily reports:', error);
+    }
 
     const grouped = {};
     ["weight", "shoulder", "chest", "waist", "hips", "thigh"].forEach((type) => {
@@ -270,18 +273,14 @@ export default function Home() {
               const exercisesDone = report.exercises_done || 0;
               const mealsCount = report.meals_count || 0;
 
-              // Create today's report with all data
-              const created = await dataService.entities.DailyReport.create({
-                user_id: user.id,
+              // Create today's report with all data via API
+              const created = await apiClient.entities.DailyReport.create({
                 date: today,
                 steps: stepsCount,
                 calories_consumed: caloriesConsumed,
                 protein_consumed: proteinConsumed,
                 exercises_done: exercisesDone,
                 meals_count: mealsCount,
-                calories_goal: 1766,
-                steps_goal: 7000,
-                exercises_goal: 3,
                 submitted: true,
               });
 

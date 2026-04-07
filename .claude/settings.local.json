@@ -6,7 +6,9 @@
       "Bash(netstat -ano)",
       "Bash(findstr \":5173\")",
       "Bash(taskkill:*)",
-      "Bash(findstr \":3000\")"
+      "Bash(findstr \":3000\")",
+      "Bash(git push:*)",
+      "Bash(POSTGRES_URL=\"postgresql://neondb_owner:npg_vx3SRkUTyEQ8@ep-super-dust-an3sx4y7.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require\" JWT_SECRET=\"your-super-secret-jwt-key-change-this-in-production-12345\" npm run db:init)"
     ]
   }
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { dataService } from "@/api/dataService";
+import { apiClient } from "@/api/apiClient";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { ArrowLeft, X } from "lucide-react";
@@ -13,34 +13,47 @@ import moment from "moment";
 const FOOD_DATA = [
   // A – Carbs
   { id: "a1", cat: "A", name: "Whole-grain flour", kcalPer100: 240, protPer100: 8.3, maxGrams: 75, unit: "g" },
+  { id: "a2", cat: "A", name: "Corn (fresh)", kcalPer100: 239, protPer100: 6.2, maxGrams: 280, unit: "g" },
+  { id: "a3", cat: "A", name: "Lavash bread", kcalPer100: 240, protPer100: 8, maxGrams: 100, unit: "g" },
+  { id: "a4", cat: "A", name: "Pasta", kcalPer100: 238, protPer100: 8.4, maxGrams: 70, unit: "g" },
+  { id: "a5", cat: "A", name: "Brown rice", kcalPer100: 248, protPer100: 7.9, maxGrams: 75, unit: "g" },
+  { id: "a6", cat: "A", name: "Whole grain bread", kcalPer100: 238, protPer100: 8.5, maxGrams: 95, unit: "g" },
+  { id: "a7", cat: "A", name: "Crackers", kcalPer100: 240, protPer100: 7.9, maxGrams: 75, unit: "g" },
   // B – Protein
-  { id: "b1", cat: "B", name: "Chicken / turkey fillet", kcalPer100: 102, protPer100: 20.5, maxGrams: 93, unit: "g" },
-  { id: "b2", cat: "B", name: "Seafood", kcalPer100: 102, protPer100: 20.4, maxGrams: 102, unit: "g" },
-  { id: "b3", cat: "B", name: "Liver", kcalPer100: 103, protPer100: 14.2, maxGrams: 79, unit: "g" },
-  { id: "b4", cat: "B", name: "Fish (>5% fat)", kcalPer100: 100, protPer100: 10.6, maxGrams: 59, unit: "g" },
-  { id: "b5", cat: "B", name: "Fish (<5% fat)", kcalPer100: 102, protPer100: 18.6, maxGrams: 93, unit: "g" },
-  { id: "b6", cat: "B", name: "Veal", kcalPer100: 170, protPer100: 20, maxGrams: 235, unit: "g" },
-  { id: "b7", cat: "B", name: "Eggs (whole)", kcalPer100: 79, protPer100: 6.3, maxGrams: 60, unit: "pcs", pcsPerGram: 1/60 },
+  { id: "b1", cat: "B", name: "Chicken / turkey fillet", kcalPer100: 402, protPer100: 80.3, maxGrams: 355, unit: "g" },
+  { id: "b2", cat: "B", name: "Seafood", kcalPer100: 400, protPer100: 80, maxGrams: 400, unit: "g" },
+  { id: "b3", cat: "B", name: "Liver", kcalPer100: 403, protPer100: 53.3, maxGrams: 310, unit: "g" },
+  { id: "b4", cat: "B", name: "Fish (>5% fat)", kcalPer100: 400, protPer100: 42.3, maxGrams: 235, unit: "g" },
+  { id: "b5", cat: "B", name: "Fish (<5% fat)", kcalPer100: 403, protPer100: 73, maxGrams: 365, unit: "g" },
+  { id: "b6", cat: "B", name: "Veal", kcalPer100: 400, protPer100: 47, maxGrams: 235, unit: "g" },
+  { id: "b7", cat: "B", name: "Eggs (whole)", kcalPer100: 313, protPer100: 25.1, maxGrams: 4, unit: "pcs" },
   // V – Vegetables
-  { id: "v1", cat: "V", name: "Mushrooms", kcalPer100: 56, protPer100: 9.8, maxGrams: 279, unit: "g" },
-  { id: "v2", cat: "V", name: "Vegetables (pickled, fermented, greens)", kcalPer100: 20, protPer100: 1.5, maxGrams: 600, unit: "g" },
+  { id: "v1", cat: "V", name: "Mushrooms", kcalPer100: 120, protPer100: 21, maxGrams: 600, unit: "g" },
+  { id: "v2", cat: "V", name: "Fresh vegetables & greens", kcalPer100: 120, protPer100: 9, maxGrams: 600, unit: "g" },
   // G – Fats / condiments
-  { id: "g1", cat: "G", name: "Avocado", kcalPer100: 160, protPer100: 2, maxGrams: 16, unit: "g" },
-  { id: "g2", cat: "G", name: "Any oil (recommend flaxseed)", kcalPer100: 900, protPer100: 0, maxGrams: 15, unit: "g" },
-  { id: "g3", cat: "G", name: "Mustard", kcalPer100: 65, protPer100: 5, maxGrams: 20, unit: "g" },
-  { id: "g4", cat: "G", name: "Ketchup", kcalPer100: 100, protPer100: 1.2, maxGrams: 26, unit: "g" },
-  { id: "g5", cat: "G", name: "Mayonnaise", kcalPer100: 600, protPer100: 0, maxGrams: 4, unit: "g" },
-  { id: "g6", cat: "G", name: "Olives", kcalPer100: 114, protPer100: 0.9, maxGrams: 22, unit: "g" },
+  { id: "g1", cat: "G", name: "Avocado", kcalPer100: 128, protPer100: 1.6, maxGrams: 80, unit: "g" },
+  { id: "g2", cat: "G", name: "Any oil (recommend flaxseed)", kcalPer100: 135, protPer100: 0, maxGrams: 15, unit: "g" },
+  { id: "g3", cat: "G", name: "Mustard", kcalPer100: 127, protPer100: 1.1, maxGrams: 110, unit: "g" },
+  { id: "g4", cat: "G", name: "Ketchup", kcalPer100: 133, protPer100: 1.3, maxGrams: 130, unit: "g" },
+  { id: "g5", cat: "G", name: "Mayonnaise", kcalPer100: 120, protPer100: 0.3, maxGrams: 20, unit: "g" },
+  { id: "g6", cat: "G", name: "Garnish/sauce", kcalPer100: 65, protPer100: 3.6, maxGrams: 100, unit: "g" },
   // D – Dairy
-  { id: "d1", cat: "D", name: "Non-sweet yogurt 1% fat", kcalPer100: 101, protPer100: 7.1, maxGrams: 223, unit: "g" },
-  { id: "d2", cat: "D", name: "Low-fat cottage cheese (0.2%)", kcalPer100: 58, protPer100: 13, maxGrams: 72, unit: "g" },
+  { id: "d1", cat: "D", name: "Kefir 1%", kcalPer100: 151, protPer100: 10.3, maxGrams: 240, unit: "g" },
+  { id: "d2", cat: "D", name: "Milk 1%", kcalPer100: 156, protPer100: 10.4, maxGrams: 340, unit: "g" },
+  { id: "d3", cat: "D", name: "Unsweetened yogurt 1%", kcalPer100: 155, protPer100: 10.9, maxGrams: 340, unit: "g" },
+  { id: "d4", cat: "D", name: "Cottage cheese (0.2%)", kcalPer100: 168, protPer100: 23, maxGrams: 210, unit: "g" },
+  { id: "d5", cat: "D", name: "Melted cheese curds", kcalPer100: 175, protPer100: 10, maxGrams: 50, unit: "g" },
+  { id: "d6", cat: "D", name: "Sour cream 15%", kcalPer100: 198, protPer100: 8.4, maxGrams: 105, unit: "g" },
   // E – Fruits (high sugar)
-  { id: "e1", cat: "E", name: "Bananas, grapes, persimmon", kcalPer100: 95, protPer100: 1.0, maxGrams: 126, unit: "g" },
-  { id: "e2", cat: "E", name: "Fruits & berries", kcalPer100: 50, protPer100: 1.0, maxGrams: 308, unit: "g" },
+  { id: "e1", cat: "E", name: "Bananas, grapes, persimmon", kcalPer100: 200, protPer100: 2.1, maxGrams: 210, unit: "g" },
+  { id: "e2", cat: "E", name: "Fruits & berries", kcalPer100: 200, protPer100: 4.7, maxGrams: 400, unit: "g" },
   // N – Nuts
-  { id: "n1", cat: "N", name: "Any nuts (recommend walnuts)", kcalPer100: 600, protPer100: 20, maxGrams: 10, unit: "g" },
+  { id: "n1", cat: "N", name: "Any nuts (recommend walnuts)", kcalPer100: 60, protPer100: 2.6, maxGrams: 10, unit: "g" },
   // J – Junk / anything
-  { id: "j1", cat: "J", name: "Anything (sweets, snacks, sausage…)", kcalPer100: 500, protPer100: 5, maxGrams: 85, unit: "g" },
+  { id: "j1", cat: "J", name: "Anything (sweets, snacks, sausage)", kcalPer100: 425, protPer100: 4.3, maxGrams: 85, unit: "g" },
+  { id: "j2", cat: "J", name: "Beer", kcalPer100: 103, protPer100: 0, maxGrams: 240, unit: "g" },
+  { id: "j3", cat: "J", name: "Dry wine", kcalPer100: 164, protPer100: 0, maxGrams: 150, unit: "g" },
+  { id: "j4", cat: "J", name: "Strong alcoholic drinks", kcalPer100: 110, protPer100: 0, maxGrams: 50, unit: "g" },
 ];
 
 const CAT_COLORS = {
@@ -74,11 +87,16 @@ export default function Racion() {
 
   async function loadData() {
     const today = moment().format("YYYY-MM-DD");
-    const reports = await dataService.entities.DailyReport.filter({ date: today, user_id: user.id });
-    if (reports.length > 0) {
-      setTodayReport(reports[0]);
+    try {
+      const reports = await apiClient.entities.DailyReport.list();
+      const todayReport = reports.find((r) => r.date === today);
+      if (todayReport) {
+        setTodayReport(todayReport);
+      }
       // Reset consumed map - food selections reset daily
       setConsumed({});
+    } catch (error) {
+      console.error('Error loading daily report:', error);
     }
     setLoading(false);
   }
@@ -142,24 +160,25 @@ export default function Racion() {
     const cal = meals.reduce((s, m) => s + m.calories, 0);
     const prot = meals.reduce((s, m) => s + m.protein, 0);
 
-    if (todayReport) {
-      await dataService.entities.DailyReport.update(todayReport.id, {
-        calories_consumed: cal,
-        protein_consumed: prot,
-        meals_count: meals.length,
-      });
-    } else {
-      const created = await dataService.entities.DailyReport.create({
-        user_id: user.id,
-        date: today,
-        calories_consumed: cal,
-        protein_consumed: prot,
-        meals_count: meals.length,
-        calories_goal: 1766,
-        steps_goal: 7000,
-        exercises_goal: 3,
-      });
-      setTodayReport(created);
+    try {
+      if (todayReport) {
+        await apiClient.entities.DailyReport.update(todayReport.id, {
+          calories_consumed: cal,
+          protein_consumed: prot,
+          meals_count: meals.length,
+        });
+      } else {
+        const created = await apiClient.entities.DailyReport.create({
+          date: today,
+          calories_consumed: cal,
+          protein_consumed: prot,
+          meals_count: meals.length,
+        });
+        setTodayReport(created);
+      }
+    } catch (error) {
+      console.error('Error saving nutrition data:', error);
+      alert('Error saving nutrition data');
     }
   }
 

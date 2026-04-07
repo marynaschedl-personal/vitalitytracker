@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { dataService } from "@/api/dataService";
+import { apiClient } from "@/api/apiClient";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { ArrowLeft, X } from "lucide-react";
@@ -88,38 +88,41 @@ export default function MeasurementDetail() {
 
   async function loadAndSeed() {
     setLoading(true);
-    // Only seed if no measurements exist for this type and user
-    // Only seed for maryna.schedl@gmail.com
-    const existing = await dataService.entities.Measurement.filter({ type, user_id: user.id });
-    if (existing.length === 0 && user.email === 'maryna.schedl@gmail.com' && SEED_DATA[type]) {
-      await Promise.all(
-        SEED_DATA[type].map((d) => dataService.entities.Measurement.create({ type, user_id: user.id, ...d }))
-      );
-    }
     loadData();
   }
 
   async function loadData() {
-    const all = await dataService.entities.Measurement.filter({ type, user_id: user.id });
-    setMeasurements(all.sort((a, b) => new Date(a.date) - new Date(b.date)));
+    try {
+      const all = await apiClient.entities.Measurement.list();
+      // Filter by type on frontend since API returns all measurements
+      const filtered = all.filter((m) => m.type === type);
+      setMeasurements(filtered.sort((a, b) => new Date(a.date) - new Date(b.date)));
+    } catch (error) {
+      console.error('Error loading measurements:', error);
+      setMeasurements([]);
+    }
     setLoading(false);
   }
 
   async function addMeasurement() {
     const value = Number(valueInput);
     if (!value) return;
-    await dataService.entities.Measurement.create({
-      user_id: user.id,
-      type,
-      value,
-      unit: typeUnits[type],
-      date: moment().format("YYYY-MM-DD"),
-      goal_value: goalInput ? Number(goalInput) : undefined,
-    });
-    setShowEdit(false);
-    setValueInput("");
-    setGoalInput("");
-    loadData();
+    try {
+      await apiClient.entities.Measurement.create({
+        type,
+        value,
+        unit: typeUnits[type],
+        date: moment().format("YYYY-MM-DD"),
+        goal_value: goalInput ? Number(goalInput) : undefined,
+      });
+      setShowEdit(false);
+      setValueInput("");
+      setGoalInput("");
+      await loadData();
+    } catch (error) {
+      console.error('Error adding measurement:', error);
+      alert('Error adding measurement');
+    }
   }
 
   if (loading) {

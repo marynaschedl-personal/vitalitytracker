@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import bcrypt from 'bcryptjs';
-import { dataService } from '@/api/dataService';
+import { apiClient } from '@/api/apiClient';
 
 const AuthContext = createContext();
 
@@ -42,29 +41,24 @@ export function AuthProvider({ children }) {
 
   const seedDemoUsers = async () => {
     try {
-      // Check if demo users already exist
-      const demoUsers = await dataService.entities.User.filter({ email: 'demo@example.com' });
-      if (demoUsers.length > 0) return; // Already seeded
+      // Try to create demo users (backend will handle duplicates)
+      try {
+        await apiClient.entities.User.register('demo@example.com', 'demo123', 'Demo User');
+        apiClient.clearToken();
+      } catch (e) {
+        // User may already exist, that's ok
+        console.log('Demo user creation info:', e.message);
+      }
 
-      // Create demo user
-      const demoPassword = await bcrypt.hash('demo123', 10);
-      await dataService.entities.User.create({
-        email: 'demo@example.com',
-        password: demoPassword,
-        name: 'Demo User',
-        created_at: new Date().toISOString(),
-      });
-
-      // Create maryna user
-      const marynaPassword = await bcrypt.hash('Maryna123!', 10);
-      await dataService.entities.User.create({
-        email: 'maryna.schedl@gmail.com',
-        password: marynaPassword,
-        name: 'Maryna Schedl',
-        created_at: new Date().toISOString(),
-      });
+      try {
+        await apiClient.entities.User.register('maryna.schedl@gmail.com', 'Maryna123!', 'Maryna Schedl');
+        apiClient.clearToken();
+      } catch (e) {
+        // User may already exist, that's ok
+        console.log('Maryna user creation info:', e.message);
+      }
     } catch (error) {
-      console.log('Demo users already seeded or error creating them:', error.message);
+      console.log('Demo user setup completed:', error.message);
     }
   };
 
@@ -72,25 +66,11 @@ export function AuthProvider({ children }) {
     try {
       setIsLoadingAuth(true);
 
-      // Check if user already exists
-      const existingUsers = await dataService.entities.User.filter({ email });
-      if (existingUsers.length > 0) {
-        throw new Error('Email already registered');
-      }
+      // Call API to register
+      const response = await apiClient.entities.User.register(email, password, email.split('@')[0]);
 
-      // Hash password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Create user
-      const userData = await dataService.entities.User.create({
-        email,
-        password: hashedPassword,
-        name: email.split('@')[0],
-        created_at: new Date().toISOString(),
-      });
-
-      // Login user after registration
-      const sessionData = { id: userData.id, email: userData.email, name: userData.name };
+      // Store user data
+      const sessionData = { id: response.user.id, email: response.user.email, name: response.user.name };
       setUser(sessionData);
       localStorage.setItem('user', JSON.stringify(sessionData));
       setAuthError(null);
@@ -107,22 +87,11 @@ export function AuthProvider({ children }) {
     try {
       setIsLoadingAuth(true);
 
-      // Find user by email
-      const users = await dataService.entities.User.filter({ email });
-      if (users.length === 0) {
-        throw new Error('Invalid email or password');
-      }
+      // Call API to login
+      const response = await apiClient.entities.User.login(email, password);
 
-      const user = users[0];
-
-      // Verify password
-      const isValidPassword = await bcrypt.compare(password, user.password);
-      if (!isValidPassword) {
-        throw new Error('Invalid email or password');
-      }
-
-      // Login successful
-      const sessionData = { id: user.id, email: user.email, name: user.name };
+      // Store user data and token
+      const sessionData = { id: response.user.id, email: response.user.email, name: response.user.name };
       setUser(sessionData);
       localStorage.setItem('user', JSON.stringify(sessionData));
       setAuthError(null);
@@ -138,6 +107,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    apiClient.clearToken();
     setAuthError(null);
   };
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { dataService } from "@/api/dataService";
+import { apiClient } from "@/api/apiClient";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { ArrowLeft, X } from "lucide-react";
@@ -42,15 +42,13 @@ export default function Steps() {
   useEffect(() => { loadData(); }, []);
 
   async function loadData() {
-    // Check if we have reports for this user and seed if needed
-    let allReports = await dataService.entities.DailyReport.filter({ user_id: user.id });
-
-    // If no reports, seed with sample data
-    if (allReports.length === 0) {
-      await Promise.all(
-        SEED_STEPS_DATA.map((d) => dataService.entities.DailyReport.create({ ...d, user_id: user.id }))
-      );
-      allReports = await dataService.entities.DailyReport.filter({ user_id: user.id });
+    // Load all daily reports for this user via API
+    let allReports = [];
+    try {
+      allReports = await apiClient.entities.DailyReport.list();
+    } catch (error) {
+      console.error('Error loading daily reports:', error);
+      allReports = [];
     }
 
     // Deduplicate by date - keep the latest entry for each date
@@ -80,15 +78,11 @@ export default function Steps() {
 
     try {
       if (todayReport) {
-        await dataService.entities.DailyReport.update(todayReport.id, { steps });
+        await apiClient.entities.DailyReport.update(todayReport.id, { steps });
       } else {
-        await dataService.entities.DailyReport.create({
-          user_id: user.id,
+        await apiClient.entities.DailyReport.create({
           date: today,
           steps,
-          steps_goal: 7000,
-          calories_goal: 1766,
-          exercises_goal: 3
         });
       }
       setShowEdit(false);

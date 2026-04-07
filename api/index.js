@@ -1,0 +1,236 @@
+import express from 'express';
+import cors from 'cors';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { query } from './db-neon.js';
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
+// ============ AUTH ENDPOINTS ============
+
+// Register
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { email, password, name } = req.body;
+
+    // Check if user exists
+    const existingUser = await query(
+      'SELECT * FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user
+    const result = await query(
+      'INSERT INTO users (email, password, name, created_at) VALUES ($1, $2, $3, NOW()) RETURNING id, email, name',
+      [email, hashedPassword, name || email.split('@')[0]]
+    );
+
+    const user = result.rows[0];
+
+    // Create JWT token
+    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET);
+
+    res.status(201).json({ user, token });
+  } catch (error) {
+    console.error('Register error:', error);
+    res.status(500).json({ error: 'Registration failed' });
+  }
+});
+
+// Login
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find user
+    const result = await query(
+      'SELECT id, email, name, password FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const user = result.rows[0];
+
+    // Verify password
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Create JWT token
+    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET);
+
+    res.json({
+      user: { id: user.id, email: user.email, name: user.name },
+      token,
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Middleware to verify JWT
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.userId = decoded.userId;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+};
+
+// ============ MEASUREMENTS ENDPOINTS ============
+
+app.get('/api/measurements', verifyToken, async (req, res) => {
+  try {
+    const result = await query(
+      'SELECT * FROM measurements WHERE user_id = $1 ORDER BY date DESC',
+      [req.userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Get measurements error:', error);
+    res.status(500).json({ error: 'Failed to get measurements' });
+  }
+});
+
+app.post('/api/measurements', verifyToken, async (req, res) => {
+  try {
+    const { type, value, unit, date, goal_value } = req.body;
+
+    const result = await query(
+      'INSERT INTO measurements (user_id, type, value, unit, date, goal_value) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [req.userId, type, value, unit, date, goal_value || null]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Create measurement error:', error);
+    res.status(500).json({ error: 'Failed to create measurement' });
+  }
+});
+
+app.put('/api/measurements/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { type, value, unit, date, goal_value } = req.body;
+
+    const result = await query(
+      'UPDATE measurements SET type = $1, value = $2, unit = $3, date = $4, goal_value = $5 WHERE id = $6 AND user_id = $7 RETURNING *',
+      [type, value, unit, date, goal_value || null, id, req.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Measurement not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Update measurement error:', error);
+    res.status(500).json({ error: 'Failed to update measurement' });
+  }
+});
+
+// ============ DAILY REPORTS ENDPOINTS ============
+
+app.get('/api/daily-reports', verifyToken, async (req, res) => {
+  try {
+    const result = await query(
+      'SELECT * FROM daily_reports WHERE user_id = $1 ORDER BY date DESC',
+      [req.userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Get daily reports error:', error);
+    res.status(500).json({ error: 'Failed to get daily reports' });
+  }
+});
+
+app.post('/api/daily-reports', verifyToken, async (req, res) => {
+  try {
+    const { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted } = req.body;
+
+    const result = await query(
+      'INSERT INTO daily_reports (user_id, date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted, calories_goal, steps_goal, exercises_goal) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1766, 7000, 3) RETURNING *',
+      [req.userId, date, steps || 0, calories_consumed || 0, protein_consumed || 0, exercises_done || 0, meals_count || 0, submitted || false]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Create daily report error:', error);
+    res.status(500).json({ error: 'Failed to create daily report' });
+  }
+});
+
+app.put('/api/daily-reports/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted } = req.body;
+
+    const result = await query(
+      'UPDATE daily_reports SET date = $1, steps = $2, calories_consumed = $3, protein_consumed = $4, exercises_done = $5, meals_count = $6, submitted = $7 WHERE id = $8 AND user_id = $9 RETURNING *',
+      [date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted, id, req.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Daily report not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Update daily report error:', error);
+    res.status(500).json({ error: 'Failed to update daily report' });
+  }
+});
+
+// ============ FOODS ENDPOINT ============
+
+app.get('/api/foods', async (req, res) => {
+  try {
+    const result = await query(
+      'SELECT * FROM foods ORDER BY category, name'
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Get foods error:', error);
+    res.status(500).json({ error: 'Failed to get foods' });
+  }
+});
+
+// ============ HEALTH CHECK ============
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+// Start server
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`API server running on port ${PORT}`);
+});
+
+export default app;
