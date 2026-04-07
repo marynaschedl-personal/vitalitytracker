@@ -434,6 +434,21 @@ app.post('/api/daily-reports', verifyToken, async (req, res) => {
   try {
     const { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted } = req.body;
 
+    // Check if report already exists for this date
+    const existing = await query(
+      'SELECT * FROM daily_reports WHERE user_id = $1 AND date = $2',
+      [req.userId, date]
+    );
+
+    if (existing.rows.length > 0) {
+      // Update existing instead of creating
+      const result = await query(
+        `UPDATE daily_reports SET steps = $1, calories_consumed = $2, protein_consumed = $3, exercises_done = $4, meals_count = $5, submitted = $6 WHERE user_id = $7 AND date = $8 RETURNING *`,
+        [steps || 0, calories_consumed || 0, protein_consumed || 0, exercises_done || 0, meals_count || 0, submitted || false, req.userId, date]
+      );
+      return res.json(result.rows[0]);
+    }
+
     const result = await query(
       'INSERT INTO daily_reports (user_id, date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted, calories_goal, steps_goal, exercises_goal) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1766, 7000, 3) RETURNING *',
       [req.userId, date, steps || 0, calories_consumed || 0, protein_consumed || 0, exercises_done || 0, meals_count || 0, submitted || false]
