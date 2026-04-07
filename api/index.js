@@ -1,4 +1,3 @@
-import { config } from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
@@ -6,9 +5,6 @@ import jwt from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
 import { Resend } from 'resend';
 import { query, initializeDatabase } from './db-neon.js';
-
-// Load environment variables FIRST
-config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
