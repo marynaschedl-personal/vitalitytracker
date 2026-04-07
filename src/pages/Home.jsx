@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiClient } from "@/api/apiClient";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Tag, LogOut, Settings, CheckCircle } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import DashboardCard from "../components/ui/DashboardCard";
@@ -49,6 +49,7 @@ const SEED_MEASUREMENTS = [
 
 export default function Home() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout, user } = useAuth();
   const [todayReport, setTodayReport] = useState(null);
   const [measurements, setMeasurements] = useState({});
@@ -62,11 +63,7 @@ export default function Home() {
 
   useEffect(() => {
     loadData();
-    // Reload data when user returns to the page
-    const handleFocus = () => loadData();
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, []);
+  }, [location.pathname]);
 
   async function loadData() {
     const today = moment().format("YYYY-MM-DD");
