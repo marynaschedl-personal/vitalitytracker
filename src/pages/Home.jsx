@@ -133,7 +133,10 @@ export default function Home() {
   return (
     <div className="px-4 pt-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold">Home</h1>
+        <div>
+          <h1 className="text-xl font-bold">Daily Tracking</h1>
+          <p className="text-xs text-muted-foreground mt-1">Monitor your health, nutrition, and fitness goals</p>
+        </div>
         <div className="relative">
           <button
             onClick={() => setShowLogoutMenu(!showLogoutMenu)}

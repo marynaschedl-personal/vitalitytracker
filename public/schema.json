@@ -1,0 +1,25 @@
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "VitalityTracker",
+  "description": "Track your daily nutrition, steps, and body measurements. Simple calorie intake, steps counter, and lifestyle tracking.",
+  "url": "https://vitalitytracker.fit",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "50"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "VitalityTracker",
+    "url": "https://vitalitytracker.fit"
+  },
+  "image": "https://vitalitytracker.fit/og-image.png"
+}
