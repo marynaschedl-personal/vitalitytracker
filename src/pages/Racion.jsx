@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { apiClient } from "@/api/apiClient";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, X, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -82,6 +82,7 @@ export default function Racion() {
   const [sliderVal, setSliderVal] = useState(0);
   const [todayReport, setTodayReport] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => { loadData(); }, []);
 
@@ -209,13 +210,30 @@ export default function Racion() {
   const selectedProt = selected ? calcProt(selected, sliderVal) : 0;
   const catStats = selected ? getCatStats(selected.cat) : null;
 
+  // Filter foods based on search query
+  const filteredFoods = FOOD_DATA.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="px-4 pt-6 pb-4">
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-4">
         <button onClick={() => navigate("/")} className="text-muted-foreground">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-xl font-bold">Nutrition</h1>
+      </div>
+
+      {/* Search */}
+      <div className="relative mb-6">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Search foods..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 bg-secondary border-border"
+        />
       </div>
 
       {/* Summary */}
@@ -236,51 +254,57 @@ export default function Racion() {
 
       {/* Food list */}
       <div className="space-y-2">
-        {FOOD_DATA.map((item) => {
-          const eaten = consumed[item.id] || 0;
-          const full = isItemFull(item);
-          const hidden = !full && isHiddenByCategory(item) && eaten === 0;
-          if (hidden) return null;
+        {filteredFoods.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <p className="text-sm">No foods found matching "{searchQuery}"</p>
+          </div>
+        ) : (
+          filteredFoods.map((item) => {
+            const eaten = consumed[item.id] || 0;
+            const full = isItemFull(item);
+            const hidden = !full && isHiddenByCategory(item) && eaten === 0;
+            if (hidden) return null;
 
-          const adjMax = getAdjustedMax(item);
-          const displayMax = full ? item.maxGrams : adjMax;
-          const displayConsumed = item.unit === "pcs" ? `${(eaten / 60).toFixed(0)} pcs` : `${eaten} / ${displayMax} g`;
+            const adjMax = getAdjustedMax(item);
+            const displayMax = full ? item.maxGrams : adjMax;
+            const displayConsumed = item.unit === "pcs" ? `${(eaten / 60).toFixed(0)} pcs` : `${eaten} / ${displayMax} g`;
 
-          return (
-            <div
-              key={item.id}
-              onClick={() => openItem(item)}
-              className={`rounded-xl p-4 cursor-pointer transition-all active:scale-[0.98] ${
-                full || eaten > 0 ? "bg-green-900/40 border border-green-700/50" : "bg-card"
-              }`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <div className={`w-7 h-7 rounded-full ${CAT_COLORS[item.cat]} flex items-center justify-center text-xs font-bold text-white shrink-0 mt-0.5`}>
-                    {item.cat}
+            return (
+              <div
+                key={item.id}
+                onClick={() => openItem(item)}
+                className={`rounded-xl p-4 cursor-pointer transition-all active:scale-[0.98] ${
+                  full || eaten > 0 ? "bg-green-900/40 border border-green-700/50" : "bg-card"
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className={`w-7 h-7 rounded-full ${CAT_COLORS[item.cat]} flex items-center justify-center text-xs font-bold text-white shrink-0 mt-0.5`}>
+                      {item.cat}
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm leading-tight">{item.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {calcKcal(item, 100)} kcal • {item.protPer100}g protein
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-sm leading-tight">{item.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {calcKcal(item, 100)} kcal • {item.protPer100}g protein
-                    </p>
-                  </div>
+                  <span className="text-sm text-muted-foreground whitespace-nowrap ml-2">
+                    {displayConsumed}
+                  </span>
                 </div>
-                <span className="text-sm text-muted-foreground whitespace-nowrap ml-2">
-                  {displayConsumed}
-                </span>
+                {eaten > 0 && (
+                  <div className="mt-2 h-1 bg-secondary rounded-full">
+                    <div
+                      className="h-1 bg-primary rounded-full"
+                      style={{ width: `${Math.min((eaten / item.maxGrams) * 100, 100)}%` }}
+                    />
+                  </div>
+                )}
               </div>
-              {eaten > 0 && (
-                <div className="mt-2 h-1 bg-secondary rounded-full">
-                  <div
-                    className="h-1 bg-primary rounded-full"
-                    style={{ width: `${Math.min((eaten / item.maxGrams) * 100, 100)}%` }}
-                  />
-                </div>
-              )}
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
       {/* Food dialog */}
