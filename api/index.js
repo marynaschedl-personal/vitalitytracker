@@ -123,16 +123,21 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
     // Send email
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-    await resend.emails.send({
-      from: 'noreply@vitalitytracker.com',
-      to: email,
-      subject: 'Reset Your VitalityTracker Password',
-      html: `
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetLink}">${resetLink}</a>
-        <p>This link expires in 1 hour.</p>
-      `
-    });
+    try {
+      await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: email,
+        subject: 'Reset Your VitalityTracker Password',
+        html: `
+          <p>Click the link below to reset your password:</p>
+          <a href="${resetLink}">${resetLink}</a>
+          <p>This link expires in 1 hour.</p>
+        `
+      });
+    } catch (emailError) {
+      console.warn('Email sending failed (non-blocking):', emailError);
+      // Continue anyway - token is saved in DB
+    }
 
     res.json({ message: 'If email exists, a reset link will be sent' });
   } catch (error) {
