@@ -88,7 +88,12 @@ export default function Home() {
     try {
       const allReports = await apiClient.entities.DailyReport.list();
       console.log('Home.jsx - Loaded reports:', allReports);
-      reports = allReports.filter((r) => r.date === today);
+      reports = allReports.filter((r) => {
+        // Convert date to YYYY-MM-DD format for comparison
+        const reportDate = moment(r.date).format("YYYY-MM-DD");
+        console.log('Comparing:', reportDate, 'vs', today, '=', reportDate === today);
+        return reportDate === today;
+      });
       console.log('Home.jsx - Today:', today, '- Found report:', reports[0]);
       if (reports.length > 0) setTodayReport(reports[0]);
     } catch (error) {
