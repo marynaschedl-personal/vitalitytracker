@@ -6,10 +6,10 @@
       "runtime": "nodejs18.x"
     }
   },
-  "env": [
-    "POSTGRES_URL",
-    "JWT_SECRET"
-  ],
+  "env": {
+    "POSTGRES_URL": "Neon database connection string",
+    "JWT_SECRET": "Secret key for JWT token signing"
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
