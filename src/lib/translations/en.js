@@ -17,6 +17,7 @@ export const en = {
   back: 'Back',
   unit_grams: 'g',
   unit_grams_full: 'grams',
+  under_construction: 'Under construction - Demo data only',
 
   // Home Page
   home_title: 'Daily Tracking',

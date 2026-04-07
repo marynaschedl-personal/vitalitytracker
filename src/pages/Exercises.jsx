@@ -21,6 +21,9 @@ export default function Exercises() {
 
   return (
     <div className="space-y-4">
+      <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+        <p className="text-sm text-yellow-700 dark:text-yellow-400 font-medium">⚠️ {t('under_construction') || 'Under construction - Demo data only'}</p>
+      </div>
       <h1 className="text-2xl font-bold text-foreground">{t('exercises_title')}</h1>
 
       {/* Summary */}

@@ -17,6 +17,7 @@ export const ru = {
   back: 'Назад',
   unit_grams: 'гр',
   unit_grams_full: 'грамм',
+  under_construction: 'В разработке - только демонстрационные данные',
 
   // Home Page
   home_title: 'Ежедневное отслеживание',
