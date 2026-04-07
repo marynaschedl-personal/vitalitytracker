@@ -96,6 +96,17 @@ export async function initializeDatabase() {
       )
     `);
 
+    // Create feedback table
+    await query(`
+      CREATE TABLE IF NOT EXISTS feedback (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        message TEXT NOT NULL,
+        rating INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     console.log('✓ Database tables initialized');
   } catch (error) {
     console.error('Database initialization error:', error);

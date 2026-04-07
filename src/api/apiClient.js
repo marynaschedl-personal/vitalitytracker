@@ -31,6 +31,10 @@ class APIClient {
     localStorage.removeItem('auth_token');
   }
 
+  async submitFeedback(message, rating = null) {
+    return this.request('POST', '/feedback', { message, rating });
+  }
+
   getHeaders(includeAuth = true) {
     const headers = {
       'Content-Type': 'application/json',

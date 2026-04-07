@@ -441,6 +441,41 @@ app.get('/api/foods', async (req, res) => {
   }
 });
 
+// ============ FEEDBACK ENDPOINT ============
+
+app.post('/api/feedback', async (req, res) => {
+  try {
+    const { message, rating } = req.body;
+    const userId = req.headers.authorization ?
+      (() => {
+        try {
+          const token = req.headers.authorization.split(' ')[1];
+          const decoded = jwt.verify(token, JWT_SECRET);
+          return decoded.userId;
+        } catch {
+          return null;
+        }
+      })() : null;
+
+    if (!message || message.trim().length === 0) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const result = await query(
+      'INSERT INTO feedback (user_id, message, rating) VALUES ($1, $2, $3) RETURNING id, created_at',
+      [userId, message.trim(), rating || null]
+    );
+
+    res.status(201).json({
+      id: result.rows[0].id,
+      message: 'Thank you for your feedback!'
+    });
+  } catch (error) {
+    console.error('Feedback error:', error);
+    res.status(500).json({ error: 'Failed to submit feedback' });
+  }
+});
+
 // ============ HEALTH CHECK ============
 
 app.get('/api/health', (req, res) => {

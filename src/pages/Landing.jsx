@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import FeedbackButton from '@/components/FeedbackButton';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -101,6 +102,8 @@ export default function Landing() {
           <p>© 2026 VitalityTracker. All rights reserved.</p>
         </div>
       </footer>
+
+      <FeedbackButton />
     </div>
   );
 }
