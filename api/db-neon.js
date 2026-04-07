@@ -3,12 +3,15 @@ import { Pool } from '@neondatabase/serverless';
 const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
 
 if (!connectionString) {
-  throw new Error('POSTGRES_URL environment variable not set. Please set it in your .env or Vercel settings.');
+  console.warn('⚠️ POSTGRES_URL environment variable not set. Database operations will fail.');
 }
 
-const pool = new Pool({ connectionString });
+const pool = connectionString ? new Pool({ connectionString }) : null;
 
 export async function query(text, params = []) {
+  if (!pool) {
+    throw new Error('Database connection not configured. POSTGRES_URL is missing.');
+  }
   const client = await pool.connect();
   try {
     const result = await client.query(text, params);
