@@ -150,6 +150,13 @@ export default function Racion() {
     const today = moment().format("YYYY-MM-DD");
 
     try {
+      // Always fetch the latest report to preserve other fields
+      const allReports = await apiClient.entities.DailyReport.list();
+      const latestReport = allReports.find((r) => {
+        const reportDate = moment(r.date).format("YYYY-MM-DD");
+        return reportDate === today;
+      });
+
       const meals = Object.entries(newConsumed)
         .filter(([, g]) => g > 0)
         .map(([foodId, g]) => {
@@ -167,18 +174,20 @@ export default function Racion() {
       const cal = meals.reduce((s, m) => s + m.calories, 0);
       const prot = meals.reduce((s, m) => s + m.protein, 0);
 
-      if (todayReport) {
-        const updated = await apiClient.entities.DailyReport.update(todayReport.id, {
+      if (latestReport) {
+        // Update existing with all preserved fields
+        const updated = await apiClient.entities.DailyReport.update(latestReport.id, {
           date: today,
           calories_consumed: cal,
           protein_consumed: prot,
           meals_count: meals.length,
-          steps: todayReport.steps || 0,
-          exercises_done: todayReport.exercises_done || 0,
-          submitted: todayReport.submitted || false,
+          steps: latestReport.steps || 0,
+          exercises_done: latestReport.exercises_done || 0,
+          submitted: latestReport.submitted || false,
         });
         setTodayReport(updated);
       } else {
+        // Create new report
         const created = await apiClient.entities.DailyReport.create({
           date: today,
           calories_consumed: cal,

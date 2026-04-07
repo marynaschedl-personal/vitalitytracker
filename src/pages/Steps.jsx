@@ -82,15 +82,22 @@ export default function Steps() {
     }
 
     try {
-      if (todayReport) {
-        const updated = await apiClient.entities.DailyReport.update(todayReport.id, {
-          date: todayReport.date,
+      // Always fetch the latest report to preserve other fields
+      const allReports = await apiClient.entities.DailyReport.list();
+      const latestReport = allReports.find((r) => {
+        const reportDate = moment(r.date).format("YYYY-MM-DD");
+        return reportDate === today;
+      });
+
+      if (latestReport) {
+        const updated = await apiClient.entities.DailyReport.update(latestReport.id, {
+          date: today,
           steps,
-          calories_consumed: todayReport.calories_consumed || 0,
-          protein_consumed: todayReport.protein_consumed || 0,
-          exercises_done: todayReport.exercises_done || 0,
-          meals_count: todayReport.meals_count || 0,
-          submitted: todayReport.submitted || false,
+          calories_consumed: latestReport.calories_consumed || 0,
+          protein_consumed: latestReport.protein_consumed || 0,
+          exercises_done: latestReport.exercises_done || 0,
+          meals_count: latestReport.meals_count || 0,
+          submitted: latestReport.submitted || false,
         });
         setTodayReport(updated);
       } else {
