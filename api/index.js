@@ -2,7 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { randomBytes } from 'crypto';
+import { Resend } from 'resend';
 import { query } from './db-neon.js';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const app = express();
 
@@ -88,6 +92,95 @@ app.post('/api/auth/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Forgot Password
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Find user (but don't reveal if email exists)
+    const userResult = await query(
+      'SELECT id, email FROM users WHERE email = $1',
+      [email]
+    );
+
+    // Always return 200 to avoid email enumeration
+    if (userResult.rows.length === 0) {
+      return res.json({ message: 'If email exists, a reset link will be sent' });
+    }
+
+    const user = userResult.rows[0];
+    const token = randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 3600000); // 1 hour
+
+    // Save reset token
+    await query(
+      'INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [user.id, token, expiresAt]
+    );
+
+    // Send email
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    await resend.emails.send({
+      from: 'noreply@vitalitytracker.com',
+      to: email,
+      subject: 'Reset Your VitalityTracker Password',
+      html: `
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetLink}">${resetLink}</a>
+        <p>This link expires in 1 hour.</p>
+      `
+    });
+
+    res.json({ message: 'If email exists, a reset link will be sent' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Failed to process reset request' });
+  }
+});
+
+// Reset Password
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: 'Token and password required' });
+    }
+
+    // Find and validate token
+    const tokenResult = await query(
+      'SELECT * FROM password_reset_tokens WHERE token = $1 AND used = false AND expires_at > NOW()',
+      [token]
+    );
+
+    if (tokenResult.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    const resetToken = tokenResult.rows[0];
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update user password
+    await query(
+      'UPDATE users SET password = $1 WHERE id = $2',
+      [hashedPassword, resetToken.user_id]
+    );
+
+    // Mark token as used
+    await query(
+      'UPDATE password_reset_tokens SET used = true WHERE id = $1',
+      [resetToken.id]
+    );
+
+    res.json({ message: 'Password reset successfully' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Failed to reset password' });
   }
 });
 

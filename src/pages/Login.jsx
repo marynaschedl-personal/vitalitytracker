@@ -68,6 +68,12 @@ export default function Login() {
             {loading ? 'Logging in...' : 'Login'}
           </Button>
 
+          <div className="text-center text-xs">
+            <Link to="/forgot-password" className="text-primary hover:underline font-medium">
+              Forgot password?
+            </Link>
+          </div>
+
           <div className="space-y-2 text-xs text-muted-foreground text-center mt-4">
             <p>
               Demo: demo@example.com / demo123

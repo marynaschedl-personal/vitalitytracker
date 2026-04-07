@@ -114,6 +114,14 @@ class EntityAPI {
     }
     return data;
   }
+
+  async forgotPassword(email) {
+    return this.client.request('POST', '/auth/forgot-password', { email }, false);
+  }
+
+  async resetPassword(token, newPassword) {
+    return this.client.request('POST', '/auth/reset-password', { token, newPassword }, false);
+  }
 }
 
 // Override request method for auth to not require token
