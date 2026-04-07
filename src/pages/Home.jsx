@@ -3,6 +3,7 @@ import { apiClient } from "@/api/apiClient";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Tag, LogOut, Settings, CheckCircle } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import { useLanguage } from "@/lib/LanguageContext";
 import DashboardCard from "../components/ui/DashboardCard";
 import ProgressRing from "../components/ui/ProgressRing";
 import MiniChart from "../components/ui/MiniChart";
@@ -51,6 +52,7 @@ export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
+  const { t } = useLanguage();
   const [todayReport, setTodayReport] = useState(null);
   const [measurements, setMeasurements] = useState({});
   const [loading, setLoading] = useState(true);
@@ -129,20 +131,20 @@ export default function Home() {
 
   const weight = measurements.weight;
   const typeLabels = {
-    weight: "current weight",
-    chest: "chest circumference",
-    waist: "waist circumference",
-    shoulder: "shoulder circumference",
-    hips: "hip circumference",
-    thigh: "thigh circumference",
+    weight: t('home_current_weight'),
+    chest: t('home_chest_label'),
+    waist: t('home_waist_label'),
+    shoulder: t('home_shoulder_label'),
+    hips: t('home_hip_label'),
+    thigh: t('home_thigh_label'),
   };
 
   return (
     <div className="px-4 pt-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold">Daily Tracking</h1>
-          <p className="text-xs text-muted-foreground mt-1">Monitor your health, nutrition, and fitness goals</p>
+          <h1 className="text-xl font-bold">{t('home_title')}</h1>
+          <p className="text-xs text-muted-foreground mt-1">{t('home_subtitle')}</p>
         </div>
         <div className="relative">
           <button
@@ -161,14 +163,14 @@ export default function Home() {
                 className="w-full px-4 py-2 flex items-center gap-2 text-foreground hover:bg-primary/10 rounded-t-lg text-sm"
               >
                 <Settings className="w-4 h-4" />
-                Settings
+                {t('home_settings')}
               </button>
               <button
                 onClick={handleLogout}
                 className="w-full px-4 py-2 flex items-center gap-2 text-destructive hover:bg-destructive/10 rounded-b-lg text-sm border-t border-border"
               >
                 <LogOut className="w-4 h-4" />
-                Logout
+                {t('home_logout')}
               </button>
             </div>
           )}
@@ -181,8 +183,8 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-2xl font-bold">{(report.steps || 0).toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground">Steps today</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Goal: {(report.steps_goal || 7000).toLocaleString()} steps</p>
+              <p className="text-sm text-muted-foreground">{t('home_steps_today')}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('home_steps_goal').replace('{N}', (report.steps_goal || 7000).toLocaleString())}</p>
             </div>
             <ProgressRing percentage={stepsPercent} size={70} label />
           </div>
@@ -194,8 +196,8 @@ export default function Home() {
           <DashboardCard onClick={() => navigate("/racion")}>
             <div className="text-center">
               <p className="text-3xl font-bold">{report.calories_consumed || 0}</p>
-              <p className="text-xs text-muted-foreground">Calories</p>
-              <p className="text-[10px] text-muted-foreground mt-1">Goal: {report.calories_goal || 1766}</p>
+              <p className="text-xs text-muted-foreground">{t('home_calories')}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{t('home_calories_goal').replace('{N}', report.calories_goal || 1766)}</p>
               <div className="mt-2 h-1 bg-secondary rounded-full">
                 <div
                   className="h-1 bg-primary rounded-full transition-all"
@@ -209,8 +211,8 @@ export default function Home() {
           <DashboardCard onClick={() => navigate("/exercises")}>
             <div className="text-center">
               <p className="text-3xl font-bold">{report.exercises_done || 0}</p>
-              <p className="text-xs text-muted-foreground">Trainings</p>
-              <p className="text-[10px] text-muted-foreground mt-1">Goal: {report.exercises_goal || 3}</p>
+              <p className="text-xs text-muted-foreground">{t('home_trainings')}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{t('home_trainings_goal').replace('{N}', report.exercises_goal || 3)}</p>
               <div className="mt-2 h-1 bg-secondary rounded-full">
                 <div
                   className="h-1 bg-primary rounded-full transition-all"
@@ -224,12 +226,12 @@ export default function Home() {
         {/* Measurements with Charts */}
         {!weight && Object.keys(measurements).length === 0 && (
           <div className="bg-card border border-border rounded-lg p-6 text-center space-y-3">
-            <p className="text-sm text-muted-foreground">Add your first measurements to see detailed tracking widgets</p>
+            <p className="text-sm text-muted-foreground">{t('home_add_measurements')}</p>
             <button
               onClick={() => navigate("/measurements")}
               className="inline-block px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
             >
-              Add Measurements
+              {t('home_add_measurements_btn')}
             </button>
           </div>
         )}
@@ -247,8 +249,8 @@ export default function Home() {
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">current weight</p>
-                {weight.goal && <p className="text-xs text-muted-foreground">Goal: {weight.goal} kg</p>}
+                <p className="text-sm text-muted-foreground">{t('home_current_weight')}</p>
+                {weight.goal && <p className="text-xs text-muted-foreground">{t('home_weight_goal').replace('{N}', weight.goal)}</p>}
               </div>
               <MiniChart data={weight.history} />
             </div>
@@ -307,11 +309,11 @@ export default function Home() {
               });
 
               setTodayReport(created);
-              alert("✓ Report saved for " + today);
+              alert(t('home_report_saved').replace('{date}', today));
             }}
           >
             <CheckCircle className="w-5 h-5" />
-            Save today
+            {t('home_save_today')}
           </button>
         )}
       </div>
