@@ -450,13 +450,13 @@ app.get('/api/daily-reports', verifyToken, async (req, res) => {
 
 app.post('/api/daily-reports', verifyToken, async (req, res) => {
   console.log('=== POST /api/daily-reports START ===');
-  console.log('Headers:', req.headers.authorization ? 'Bearer token present' : 'NO TOKEN');
-  console.log('req.userId:', req.userId);
-  console.log('req.body:', req.body);
+  console.log('req.body content:', JSON.stringify(req.body));
+  console.log('req.body keys:', Object.keys(req.body));
+  console.log('Content-Type:', req.headers['content-type']);
 
   try {
     const { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted } = req.body;
-    console.log('Parsed fields:', { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted });
+    console.log('Extracted values:', { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted });
 
     console.log('Checking if report exists for', { userId: req.userId, date, dateType: typeof date });
     // Check if report already exists for this date - cast to date to ignore time
