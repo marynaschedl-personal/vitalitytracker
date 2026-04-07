@@ -1,17 +1,20 @@
 import { Link, useLocation } from "react-router-dom";
 import { LayoutGrid, Utensils, Dumbbell, Footprints, Ruler } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/LanguageContext";
 
-const tabs = [
-  { path: "/", icon: LayoutGrid, label: "Home" },
-  { path: "/racion", icon: Utensils, label: "Nutrition" },
-  { path: "/exercises", icon: Dumbbell, label: "Workouts" },
-  { path: "/steps", icon: Footprints, label: "Steps" },
-  { path: "/measurements", icon: Ruler, label: "Measures" },
+const getTabs = (t) => [
+  { path: "/", icon: LayoutGrid, labelKey: "nav_home" },
+  { path: "/racion", icon: Utensils, labelKey: "nav_nutrition" },
+  { path: "/exercises", icon: Dumbbell, labelKey: "nav_workouts" },
+  { path: "/steps", icon: Footprints, labelKey: "nav_steps" },
+  { path: "/measurements", icon: Ruler, labelKey: "nav_measures" },
 ];
 
 export default function BottomNav() {
   const location = useLocation();
+  const { t } = useLanguage();
+  const tabs = getTabs(t);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50">
@@ -31,7 +34,7 @@ export default function BottomNav() {
               )}
             >
               <tab.icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{tab.label}</span>
+              <span className="text-[10px] font-medium">{t(tab.labelKey)}</span>
             </Link>
           );
         })}

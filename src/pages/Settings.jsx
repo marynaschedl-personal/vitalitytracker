@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import { useLanguage } from "@/lib/LanguageContext";
 import { apiClient } from "@/api/apiClient";
 import DashboardCard from "@/components/ui/DashboardCard";
 import moment from "moment";
@@ -17,12 +18,12 @@ const getSubmittedReportsForUser = async () => {
   }
 };
 
-const THEMES = [
+const getThemes = (t) => [
   {
     id: "light",
-    name: "Light",
+    nameKey: "settings_theme_light",
     bg: "bg-white",
-    description: "Clean and bright",
+    descKey: "settings_theme_light_desc",
     cssVars: {
       "--background": "0 0% 100%",
       "--foreground": "0 0% 0%",
@@ -32,9 +33,9 @@ const THEMES = [
   },
   {
     id: "dark",
-    name: "Dark",
+    nameKey: "settings_theme_dark",
     bg: "bg-slate-900",
-    description: "Easy on the eyes",
+    descKey: "settings_theme_dark_desc",
     cssVars: {
       "--background": "224 71% 4%",
       "--foreground": "213 31% 91%",
@@ -44,9 +45,9 @@ const THEMES = [
   },
   {
     id: "ocean",
-    name: "Ocean",
+    nameKey: "settings_theme_ocean",
     bg: "bg-blue-50",
-    description: "Calm and serene",
+    descKey: "settings_theme_ocean_desc",
     cssVars: {
       "--background": "210 40% 96%",
       "--foreground": "210 40% 10%",
@@ -56,9 +57,9 @@ const THEMES = [
   },
   {
     id: "forest",
-    name: "Forest",
+    nameKey: "settings_theme_forest",
     bg: "bg-green-50",
-    description: "Natural and refreshing",
+    descKey: "settings_theme_forest_desc",
     cssVars: {
       "--background": "120 30% 95%",
       "--foreground": "120 30% 10%",
@@ -68,9 +69,9 @@ const THEMES = [
   },
   {
     id: "sunset",
-    name: "Sunset",
+    nameKey: "settings_theme_sunset",
     bg: "bg-orange-50",
-    description: "Warm and energetic",
+    descKey: "settings_theme_sunset_desc",
     cssVars: {
       "--background": "30 100% 96%",
       "--foreground": "30 80% 10%",
@@ -80,9 +81,9 @@ const THEMES = [
   },
   {
     id: "midnight",
-    name: "Midnight",
+    nameKey: "settings_theme_midnight",
     bg: "bg-indigo-950",
-    description: "Deep and focused",
+    descKey: "settings_theme_midnight_desc",
     cssVars: {
       "--background": "275 100% 8%",
       "--foreground": "275 50% 90%",
@@ -95,6 +96,7 @@ const THEMES = [
 export default function Settings() {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const { t, lang, setLang } = useLanguage();
   const [currentTheme, setCurrentTheme] = useState("dark");
   const [submittedReports, setSubmittedReports] = useState([]);
   const [loadingReports, setLoadingReports] = useState(true);
@@ -139,22 +141,24 @@ export default function Settings() {
     navigate("/login");
   };
 
+  const themes = getThemes(t);
+
   return (
     <div className="px-4 pt-6 pb-24">
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => navigate("/")} className="text-muted-foreground">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-bold">Settings</h1>
+        <h1 className="text-xl font-bold">{t('settings_title')}</h1>
       </div>
 
       <DashboardCard className="mb-4">
-        <h2 className="font-semibold mb-2">Theme</h2>
-        <p className="text-xs text-muted-foreground mb-4">Choose your preferred app theme</p>
+        <h2 className="font-semibold mb-2">{t('settings_theme')}</h2>
+        <p className="text-xs text-muted-foreground mb-4">{t('settings_theme_desc')}</p>
       </DashboardCard>
 
       <div className="grid grid-cols-2 gap-3 mb-6">
-        {THEMES.map((theme) => (
+        {themes.map((theme) => (
           <button
             key={theme.id}
             onClick={() => handleThemeChange(theme.id)}
@@ -165,17 +169,44 @@ export default function Settings() {
             }`}
           >
             <div className={`w-full h-20 rounded-lg mb-2 ${theme.bg}`} />
-            <p className="font-medium text-sm">{theme.name}</p>
-            <p className="text-xs text-muted-foreground">{theme.description}</p>
+            <p className="font-medium text-sm">{t(theme.nameKey)}</p>
+            <p className="text-xs text-muted-foreground">{t(theme.descKey)}</p>
           </button>
         ))}
       </div>
 
       <DashboardCard className="mb-4">
-        <h2 className="font-semibold mb-2">Saved Reports</h2>
-        <p className="text-xs text-muted-foreground mb-4">Days you've submitted</p>
+        <h2 className="font-semibold mb-2">{t('settings_language')}</h2>
+        <p className="text-xs text-muted-foreground mb-4">{t('settings_language_desc')}</p>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setLang('en')}
+            className={`flex-1 py-2 rounded-lg font-medium transition-all ${
+              lang === 'en'
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+            }`}
+          >
+            English
+          </button>
+          <button
+            onClick={() => setLang('ru')}
+            className={`flex-1 py-2 rounded-lg font-medium transition-all ${
+              lang === 'ru'
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+            }`}
+          >
+            Русский
+          </button>
+        </div>
+      </DashboardCard>
+
+      <DashboardCard className="mb-4">
+        <h2 className="font-semibold mb-2">{t('settings_saved_reports')}</h2>
+        <p className="text-xs text-muted-foreground mb-4">{t('settings_saved_reports_desc')}</p>
         {loadingReports ? (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <p className="text-sm text-muted-foreground">{t('loading')}</p>
         ) : submittedReports.length > 0 ? (
           <div className="space-y-2">
             {submittedReports.map((report) => (
@@ -196,7 +227,7 @@ export default function Settings() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">No saved reports yet</p>
+          <p className="text-sm text-muted-foreground">{t('settings_no_reports')}</p>
         )}
       </DashboardCard>
 
@@ -204,7 +235,7 @@ export default function Settings() {
         onClick={handleLogout}
         className="w-full py-3 bg-destructive/10 text-destructive rounded-2xl font-medium active:scale-[0.98] transition-transform"
       >
-        Logout
+        {t('nav_logout')}
       </button>
     </div>
   );
