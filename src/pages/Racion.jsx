@@ -107,19 +107,18 @@ export default function Racion() {
   // ── Category stats ──────────────────────────────────────────────────────────
   function getCatStats(cat) {
     const items = FOOD_DATA.filter((f) => f.cat === cat);
-    const totalOriginal = items.reduce((s, f) => s + f.maxGrams, 0);
-    const totalConsumed = items.reduce((s, f) => s + (consumed[f.id] || 0), 0);
-    const fraction = totalOriginal > 0 ? totalConsumed / totalOriginal : 0;
-    return { fraction, totalConsumed, totalOriginal };
+    // Fraction = sum of (consumed / maxGrams) for each item
+    const totalFraction = items.reduce((s, f) => s + (consumed[f.id] || 0) / f.maxGrams, 0);
+    const fraction = Math.min(1, totalFraction);
+    return { fraction };
   }
 
   function getAdjustedMax(item) {
-    const { fraction } = getCatStats(item.cat);
-    const myConsumed = consumed[item.id] || 0;
-    const remaining = item.maxGrams - myConsumed;
-    const catRemaining = Math.max(0, 1 - fraction);
-    // adjusted = original * remaining fraction
-    return Math.max(0, Math.round(item.maxGrams * catRemaining));
+    const items = FOOD_DATA.filter((f) => f.cat === item.cat && f.id !== item.id);
+    // Fraction used by other items in same category
+    const othersFraction = Math.min(1, items.reduce((s, f) => s + (consumed[f.id] || 0) / f.maxGrams, 0));
+    // Available = item's maxGrams × (1 - fraction used by others)
+    return Math.max(0, Math.floor(item.maxGrams * (1 - othersFraction)));
   }
 
   function isCategoryFull(cat) {
