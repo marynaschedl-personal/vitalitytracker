@@ -15,6 +15,8 @@ export const en = {
   edit: 'Edit',
   error: 'Error',
   back: 'Back',
+  unit_grams: 'g',
+  unit_grams_full: 'grams',
 
   // Home Page
   home_title: 'Daily Tracking',
@@ -29,6 +31,9 @@ export const en = {
   home_trainings_goal: 'Goal: {N}',
   home_add_measurements: 'Add your first measurements to see detailed tracking widgets',
   home_add_measurements_btn: 'Add Measurements',
+  home_empty_state_title: 'See Your Progress',
+  home_empty_state_desc: 'Add your starting measurements to watch your body transform over time. There\'s nothing more satisfying than seeing real results.',
+  home_empty_state_cta: 'Add Measurements',
   home_current_weight: 'current weight',
   home_weight_goal: 'Goal: {N} kg',
   home_weight_label: 'Weight',
@@ -153,7 +158,7 @@ export const en = {
   measurements_thigh: 'Thigh circumference',
 
   // Measurement Detail Page
-  measurement_detail_edit: 'Edit',
+  measurement_detail_edit: 'Update',
   measurement_detail_total_change: 'Total change',
   measurement_detail_change_desc: 'Change since first measurement',
   measurement_detail_from_to: 'From {N} {unit} to {N} {unit}',
@@ -165,11 +170,14 @@ export const en = {
   measurement_detail_history_desc: 'Your measurements over time',
   measurement_detail_no_measurements: 'No measurements yet',
   measurement_detail_add_first: 'Add first measurement',
-  measurement_detail_add_title: 'Add measurement',
+  measurement_detail_baseline_title: 'Set Your Baseline',
+  measurement_detail_progress_title: 'Log Your Progress',
   measurement_detail_value_label: 'Value ({unit})',
   measurement_detail_value_placeholder: 'Enter value in {unit}',
   measurement_detail_goal_label: 'Goal ({unit}) — optional',
   measurement_detail_goal_placeholder: 'Target value',
+  measurement_detail_last_measured: 'Last measured: {value} {unit} on {date}',
+  measurement_detail_change_since_last: '{direction} {value} {unit} since last time',
   measurement_detail_error: 'Error adding measurement',
 
   // Exercises Page
@@ -300,4 +308,14 @@ export const en = {
   error_page_not_found: 'Page Not Found',
   error_page_not_found_desc: 'Sorry, the page you\'re looking for doesn\'t exist.',
   error_back_home: 'Back to Home',
+
+  // SEO - Meta Tags
+  seo_title: 'VitalityTracker - Simple Health & Fitness Tracking',
+  seo_description: 'Track your daily nutrition, steps, and body measurements. Simple calorie intake, steps counter, and lifestyle tracking. No marketing fluff.',
+  seo_keywords: 'health tracker, fitness tracker, calorie counter, step counter, body measurements, wellness',
+  seo_og_title: 'VitalityTracker - Simple Health & Fitness Tracking',
+  seo_og_description: 'Track your daily nutrition, steps, and body measurements with VitalityTracker.',
+  seo_twitter_title: 'VitalityTracker - Simple Health & Fitness Tracking',
+  seo_twitter_description: 'Track your daily nutrition, steps, and body measurements.',
+  seo_schema_description: 'Track your daily nutrition, steps, and body measurements. Simple calorie intake, steps counter, and lifestyle tracking.',
 };

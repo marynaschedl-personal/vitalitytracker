@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { LanguageProvider } from '@/lib/LanguageContext';
+import { SEO } from '@/components/SEO';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './components/Layout';
 import Login from './pages/Login';
@@ -146,6 +147,7 @@ function App() {
   return (
     <AuthProvider>
       <LanguageProvider>
+        <SEO />
         <QueryClientProvider client={queryClientInstance}>
           <Router>
             <AuthenticatedApp />

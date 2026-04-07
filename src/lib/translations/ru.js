@@ -15,6 +15,8 @@ export const ru = {
   edit: 'Изменить',
   error: 'Ошибка',
   back: 'Назад',
+  unit_grams: 'гр',
+  unit_grams_full: 'грамм',
 
   // Home Page
   home_title: 'Ежедневное отслеживание',
@@ -29,6 +31,9 @@ export const ru = {
   home_trainings_goal: 'Цель: {N}',
   home_add_measurements: 'Добавьте первые измерения, чтобы увидеть детальные виджеты отслеживания',
   home_add_measurements_btn: 'Добавить измерения',
+  home_empty_state_title: 'Смотрите свой прогресс',
+  home_empty_state_desc: 'Добавьте начальные измерения, чтобы наблюдать, как меняется ваше тело. Нет ничего более приятного, чем видеть реальные результаты.',
+  home_empty_state_cta: 'Добавить измерения',
   home_current_weight: 'текущий вес',
   home_weight_goal: 'Цель: {N} кг',
   home_weight_label: 'Вес',
@@ -69,13 +74,13 @@ export const ru = {
   racion_protein: 'белок',
   racion_calories: 'Калории',
   racion_no_results: 'Продукты, совпадающие с \"{query}\", не найдены',
-  racion_original_recommendation: 'Исходная рекомендация: {N} г',
-  racion_recommended_portion: 'Рекомендуемая порция: {N} г',
+  racion_original_recommendation: 'Исходная рекомендация: {N} гр',
+  racion_recommended_portion: 'Рекомендуемая порция: {N} гр',
   racion_kcal_out_of: '({N} ккал из {N} ккал)',
   racion_consumed_in_category: 'Съедено в категории: {N}% / 100%',
-  racion_amount_grams: 'Количество (граммы): {N}',
-  racion_max_grams: '(макс {N}г)',
-  racion_enter_grams: 'Введите граммы:',
+  racion_amount_grams: 'Количество (гр): {N}',
+  racion_max_grams: '(макс {N} гр)',
+  racion_enter_grams: 'Введите граммы (гр):',
   racion_kcal: 'ккал',
   racion_confirm: 'Подтвердить',
   racion_saving: 'Сохранение...',
@@ -153,7 +158,7 @@ export const ru = {
   measurements_thigh: 'Окружность бедра',
 
   // Measurement Detail Page
-  measurement_detail_edit: 'Изменить',
+  measurement_detail_edit: 'Обновить',
   measurement_detail_total_change: 'Общее изменение',
   measurement_detail_change_desc: 'Изменение с момента первого измерения',
   measurement_detail_from_to: 'С {N} {unit} на {N} {unit}',
@@ -165,11 +170,14 @@ export const ru = {
   measurement_detail_history_desc: 'Ваши измерения с течением времени',
   measurement_detail_no_measurements: 'Измерений еще нет',
   measurement_detail_add_first: 'Добавить первое измерение',
-  measurement_detail_add_title: 'Добавить измерение',
+  measurement_detail_baseline_title: 'Установите начальное значение',
+  measurement_detail_progress_title: 'Запишите свой прогресс',
   measurement_detail_value_label: 'Значение ({unit})',
   measurement_detail_value_placeholder: 'Введите значение в {unit}',
   measurement_detail_goal_label: 'Цель ({unit}) — опционально',
   measurement_detail_goal_placeholder: 'Целевое значение',
+  measurement_detail_last_measured: 'Последнее измерение: {value} {unit} от {date}',
+  measurement_detail_change_since_last: '{direction} {value} {unit} с последнего раза',
   measurement_detail_error: 'Ошибка при добавлении измерения',
 
   // Exercises Page
@@ -300,4 +308,14 @@ export const ru = {
   error_page_not_found: 'Страница не найдена',
   error_page_not_found_desc: 'К сожалению, страница, которую вы ищете, не существует.',
   error_back_home: 'Вернуться на главную',
+
+  // SEO - Meta Tags
+  seo_title: 'VitalityTracker - Простое отслеживание здоровья и фитнеса',
+  seo_description: 'Отслеживайте ежедневное питание, шаги и измерения тела. Простой счетчик калорий, счетчик шагов и отслеживание образа жизни. Без маркетинга.',
+  seo_keywords: 'трекер здоровья, фитнес трекер, счетчик калорий, счетчик шагов, измерения тела, благополучие',
+  seo_og_title: 'VitalityTracker - Простое отслеживание здоровья и фитнеса',
+  seo_og_description: 'Отслеживайте ежедневное питание, шаги и измерения тела с помощью VitalityTracker.',
+  seo_twitter_title: 'VitalityTracker - Простое отслеживание здоровья и фитнеса',
+  seo_twitter_description: 'Отслеживайте ежедневное питание, шаги и измерения тела.',
+  seo_schema_description: 'Отслеживайте ежедневное питание, шаги и измерения тела. Простой счетчик калорий, счетчик шагов и отслеживание образа жизни.',
 };

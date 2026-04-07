@@ -9,6 +9,14 @@ import ProgressRing from "../components/ui/ProgressRing";
 import MiniChart from "../components/ui/MiniChart";
 import moment from "moment";
 
+// Format number to remove unnecessary decimals
+const formatNumber = (num) => {
+  if (typeof num !== 'number') return num;
+  // Round to 1 decimal place, then remove trailing zeros
+  const rounded = Math.round(num * 10) / 10;
+  return Number.isInteger(rounded) ? Math.round(rounded) : rounded;
+};
+
 // Seed data from screenshots
 const SEED_MEASUREMENTS = [
   // Weight data
@@ -102,12 +110,12 @@ export default function Home() {
         const prev = items.length > 1 ? items[items.length - 2] : null;
         const first = items[0];
         grouped[type] = {
-          current: latest.value,
-          change: prev ? latest.value - prev.value : 0,
-          totalChange: latest.value - first.value,
-          goal: latest.goal_value,
+          current: Number(latest.value),
+          change: prev ? Number(latest.value) - Number(prev.value) : 0,
+          totalChange: Number(latest.value) - Number(first.value),
+          goal: Number(latest.goal_value),
           unit: latest.unit || (type === "weight" ? "kg" : "cm"),
-          history: items.map((i) => i.value),
+          history: items.map((i) => Number(i.value)),
         };
       }
     });
@@ -182,9 +190,9 @@ export default function Home() {
         <DashboardCard onClick={() => navigate("/steps")}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-2xl font-bold">{(report.steps || 0).toLocaleString()}</p>
+              <p className="text-2xl font-bold">{formatNumber(report.steps || 0).toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">{t('home_steps_today')}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{t('home_steps_goal').replace('{N}', (report.steps_goal || 7000).toLocaleString())}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('home_steps_goal').replace('{N}', formatNumber(report.steps_goal || 7000).toLocaleString())}</p>
             </div>
             <ProgressRing percentage={stepsPercent} size={70} label />
           </div>
@@ -195,9 +203,9 @@ export default function Home() {
           {/* Nutrition */}
           <DashboardCard onClick={() => navigate("/racion")}>
             <div className="text-center">
-              <p className="text-3xl font-bold">{report.calories_consumed || 0}</p>
+              <p className="text-3xl font-bold">{formatNumber(report.calories_consumed || 0)}</p>
               <p className="text-xs text-muted-foreground">{t('home_calories')}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">{t('home_calories_goal').replace('{N}', report.calories_goal || 1766)}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{t('home_calories_goal').replace('{N}', formatNumber(report.calories_goal || 1766))}</p>
               <div className="mt-2 h-1 bg-secondary rounded-full">
                 <div
                   className="h-1 bg-primary rounded-full transition-all"
@@ -210,9 +218,9 @@ export default function Home() {
           {/* Exercises/Trainings */}
           <DashboardCard onClick={() => navigate("/exercises")}>
             <div className="text-center">
-              <p className="text-3xl font-bold">{report.exercises_done || 0}</p>
+              <p className="text-3xl font-bold">{formatNumber(report.exercises_done || 0)}</p>
               <p className="text-xs text-muted-foreground">{t('home_trainings')}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">{t('home_trainings_goal').replace('{N}', report.exercises_goal || 3)}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{t('home_trainings_goal').replace('{N}', formatNumber(report.exercises_goal || 3))}</p>
               <div className="mt-2 h-1 bg-secondary rounded-full">
                 <div
                   className="h-1 bg-primary rounded-full transition-all"
@@ -223,17 +231,17 @@ export default function Home() {
           </DashboardCard>
         </div>
 
-        {/* Measurements with Charts */}
+        {/* Measurements with Charts - Empty State */}
         {!weight && Object.keys(measurements).length === 0 && (
-          <div className="bg-card border border-border rounded-lg p-6 text-center space-y-3">
-            <p className="text-sm text-muted-foreground">{t('home_add_measurements')}</p>
-            <button
-              onClick={() => navigate("/measurements")}
-              className="inline-block px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-            >
-              {t('home_add_measurements_btn')}
-            </button>
-          </div>
+          <DashboardCard onClick={() => navigate("/measurements")}>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xs font-semibold text-foreground">{t('home_empty_state_title')}</h3>
+                <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">{t('home_empty_state_desc')}</p>
+              </div>
+              <div className="text-2xl flex-shrink-0">📈</div>
+            </div>
+          </DashboardCard>
         )}
 
         {weight && (
@@ -241,16 +249,16 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold">{weight.current}</span>
+                  <span className="text-3xl font-bold">{formatNumber(weight.current)}</span>
                   <span className="text-sm text-muted-foreground">kg</span>
                   {weight.change !== 0 && (
                     <span className={`text-sm font-medium ${weight.change < 0 ? "text-primary" : "text-destructive"}`}>
-                      {weight.change < 0 ? "↓" : "↑"} {Math.abs(weight.change.toFixed(1))}
+                      {weight.change < 0 ? "↓" : "↑"} {formatNumber(Math.abs(weight.change))}
                     </span>
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground">{t('home_current_weight')}</p>
-                {weight.goal && <p className="text-xs text-muted-foreground">{t('home_weight_goal').replace('{N}', weight.goal)}</p>}
+                {weight.goal && <p className="text-xs text-muted-foreground">{t('home_weight_goal').replace('{N}', formatNumber(weight.goal))}</p>}
               </div>
               <MiniChart data={weight.history} />
             </div>
@@ -267,11 +275,11 @@ export default function Home() {
                 <div>
                   <div className="flex items-center gap-2">
                     <Tag className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-3xl font-bold">{m.current}</span>
+                    <span className="text-3xl font-bold">{formatNumber(m.current)}</span>
                     <span className="text-sm text-muted-foreground">{m.unit}</span>
                     {m.change !== 0 && (
                       <span className={`text-sm font-medium ${m.change < 0 ? "text-primary" : "text-destructive"}`}>
-                        {m.change < 0 ? "↓" : "↑"} {Math.abs(m.change)}
+                        {m.change < 0 ? "↓" : "↑"} {formatNumber(Math.abs(m.change))}
                       </span>
                     )}
                   </div>

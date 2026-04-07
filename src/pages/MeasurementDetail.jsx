@@ -111,13 +111,16 @@ export default function MeasurementDetail() {
     const value = Number(valueInput);
     if (!value) return;
     try {
-      await apiClient.entities.Measurement.create({
+      const payload = {
         type,
         value,
         unit: typeUnits[type],
         date: moment().format("YYYY-MM-DD"),
-        goal_value: goalInput ? Number(goalInput) : undefined,
-      });
+      };
+      if (goalInput) {
+        payload.goal_value = Number(goalInput);
+      }
+      await apiClient.entities.Measurement.create(payload);
       setShowEdit(false);
       setValueInput("");
       setGoalInput("");
@@ -157,7 +160,7 @@ export default function MeasurementDetail() {
           </button>
           <h1 className="text-xl font-bold">{label}</h1>
         </div>
-        <button onClick={() => { setValueInput(""); setGoalInput(latest?.goal_value ? String(latest.goal_value) : ""); setShowEdit(true); }} className="text-primary font-medium text-sm">
+        <button onClick={() => { setValueInput(""); setGoalInput(""); setShowEdit(true); }} className="text-primary font-medium text-sm">
           {t('measurement_detail_edit')}
         </button>
       </div>
@@ -207,7 +210,9 @@ export default function MeasurementDetail() {
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
         <DialogContent className="bg-card border-border">
           <DialogHeader className="flex items-center justify-between">
-            <DialogTitle>{t('measurement_detail_add_title')}</DialogTitle>
+            <DialogTitle>
+              {measurements.length === 0 ? t('measurement_detail_baseline_title') : t('measurement_detail_progress_title')}
+            </DialogTitle>
             <button
               onClick={() => setShowEdit(false)}
               className="text-muted-foreground hover:text-foreground transition-colors"
@@ -216,14 +221,26 @@ export default function MeasurementDetail() {
             </button>
           </DialogHeader>
           <div className="space-y-4">
+            {measurements.length > 0 && (
+              <div className="bg-secondary rounded-lg p-3">
+                <p className="text-xs text-muted-foreground">
+                  {t('measurement_detail_last_measured')
+                    .replace('{value}', latest.value)
+                    .replace('{unit}', unit)
+                    .replace('{date}', moment(latest.date).format('DD MMM'))}
+                </p>
+              </div>
+            )}
             <div>
               <Label>{t('measurement_detail_value_label').replace('{unit}', unit)}</Label>
               <Input type="number" value={valueInput} onChange={(e) => setValueInput(e.target.value)} placeholder={t('measurement_detail_value_placeholder').replace('{unit}', unit)} className="bg-secondary border-border" />
             </div>
-            <div>
-              <Label>{t('measurement_detail_goal_label').replace('{unit}', unit)}</Label>
-              <Input type="number" value={goalInput} onChange={(e) => setGoalInput(e.target.value)} placeholder={t('measurement_detail_goal_placeholder')} className="bg-secondary border-border" />
-            </div>
+            {measurements.length === 0 && (
+              <div>
+                <Label>{t('measurement_detail_goal_label').replace('{unit}', unit)}</Label>
+                <Input type="number" value={goalInput} onChange={(e) => setGoalInput(e.target.value)} placeholder={t('measurement_detail_goal_placeholder')} className="bg-secondary border-border" />
+              </div>
+            )}
             <Button onClick={addMeasurement} className="w-full" disabled={!valueInput}>{t('save')}</Button>
           </div>
         </DialogContent>

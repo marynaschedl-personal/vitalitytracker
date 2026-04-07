@@ -238,7 +238,7 @@ export default function Racion() {
 
   // Filter foods based on search query
   const filteredFoods = FOOD_DATA.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    t(item.nameKey).toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -293,7 +293,7 @@ export default function Racion() {
 
             const adjMax = getAdjustedMax(item);
             const displayMax = full ? item.maxGrams : adjMax;
-            const displayConsumed = item.unit === "pcs" ? `${(eaten / 60).toFixed(0)} pcs` : `${eaten} / ${displayMax} g`;
+            const displayConsumed = item.unit === "pcs" ? `${(eaten / 60).toFixed(0)} pcs` : `${eaten} / ${displayMax} ${t('unit_grams')}`;
 
             return (
               <div
