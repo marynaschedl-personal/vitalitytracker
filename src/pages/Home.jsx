@@ -139,7 +139,7 @@ export default function Home() {
             onClick={() => setShowLogoutMenu(!showLogoutMenu)}
             className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold active:scale-[0.95] transition-transform"
           >
-            M
+            {user?.email?.[0]?.toUpperCase() || 'U'}
           </button>
           {showLogoutMenu && (
             <div className="absolute right-0 mt-2 bg-card border border-border rounded-lg shadow-lg z-50 min-w-40">
