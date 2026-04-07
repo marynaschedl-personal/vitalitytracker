@@ -21,6 +21,115 @@ app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
+// Email Templates
+function getWelcomeEmailTemplate(name, email) {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
+          .header h1 { margin: 0; font-size: 32px; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+          .feature { margin: 20px 0; padding: 15px; background: white; border-left: 4px solid #667eea; border-radius: 4px; }
+          .feature-icon { font-size: 24px; margin-right: 10px; }
+          .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin-top: 20px; }
+          .footer { text-align: center; margin-top: 30px; color: #999; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Welcome to VitalityTracker! 🎉</h1>
+          </div>
+          <div class="content">
+            <p>Hi ${name || 'there'},</p>
+            <p>Thanks for signing up! You're all set to start tracking your health and fitness journey.</p>
+
+            <div class="feature">
+              <span class="feature-icon">📊</span>
+              <strong>Track Daily Nutrition</strong>
+              <p>Log your calorie intake and monitor your protein consumption.</p>
+            </div>
+
+            <div class="feature">
+              <span class="feature-icon">👟</span>
+              <strong>Monitor Your Steps</strong>
+              <p>Set daily step goals and watch your progress in real-time.</p>
+            </div>
+
+            <div class="feature">
+              <span class="feature-icon">📈</span>
+              <strong>Track Body Measurements</strong>
+              <p>Record and visualize your progress with detailed body metrics.</p>
+            </div>
+
+            <p style="margin-top: 30px;">Ready to get started? Log in and create your first daily report!</p>
+
+            <div style="text-align: center;">
+              <a href="${process.env.FRONTEND_URL}" class="button">Go to VitalityTracker</a>
+            </div>
+
+            <p style="margin-top: 30px; color: #666; font-size: 14px;">Questions? We're here to help. Just reply to this email.</p>
+          </div>
+          <div class="footer">
+            <p>© 2026 VitalityTracker. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+function getResetPasswordEmailTemplate(resetLink) {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
+          .header h1 { margin: 0; font-size: 28px; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+          .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .alert { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #999; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Reset Your Password</h1>
+          </div>
+          <div class="content">
+            <p>We received a request to reset your VitalityTracker password.</p>
+
+            <div style="text-align: center;">
+              <a href="${resetLink}" class="button">Reset Password</a>
+            </div>
+
+            <p style="text-align: center; color: #666; font-size: 12px;">Or copy this link:</p>
+            <p style="text-align: center; word-break: break-all; color: #667eea; font-size: 12px;">${resetLink}</p>
+
+            <div class="alert">
+              <strong>⏱️ This link expires in 1 hour</strong>
+              <p style="margin: 10px 0 0 0;">If you didn't request a password reset, you can safely ignore this email.</p>
+            </div>
+
+            <p style="margin-top: 30px; color: #666; font-size: 14px;">Questions? Contact our support team.</p>
+          </div>
+          <div class="footer">
+            <p>© 2026 VitalityTracker. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
 // ============ AUTH ENDPOINTS ============
 
 // Register
@@ -48,6 +157,18 @@ app.post('/api/auth/register', async (req, res) => {
     );
 
     const user = result.rows[0];
+
+    // Send welcome email
+    try {
+      await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: email,
+        subject: 'Welcome to VitalityTracker! 🎉',
+        html: getWelcomeEmailTemplate(user.name, email)
+      });
+    } catch (emailError) {
+      console.warn('Welcome email sending failed (non-blocking):', emailError);
+    }
 
     // Create JWT token
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET);
@@ -128,11 +249,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         from: 'onboarding@resend.dev',
         to: email,
         subject: 'Reset Your VitalityTracker Password',
-        html: `
-          <p>Click the link below to reset your password:</p>
-          <a href="${resetLink}">${resetLink}</a>
-          <p>This link expires in 1 hour.</p>
-        `
+        html: getResetPasswordEmailTemplate(resetLink)
       });
     } catch (emailError) {
       console.warn('Email sending failed (non-blocking):', emailError);
