@@ -161,7 +161,7 @@ app.post('/api/auth/register', async (req, res) => {
     // Send welcome email
     try {
       await resend.emails.send({
-        from: 'noreply@vitalitytracker.fit',
+        from: 'noreply@contact.vitalitytracker.fit',
         to: email,
         subject: 'Welcome to VitalityTracker! 🎉',
         html: getWelcomeEmailTemplate(user.name, email)
@@ -246,7 +246,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
     try {
       await resend.emails.send({
-        from: 'noreply@vitalitytracker.fit',
+        from: 'noreply@contact.vitalitytracker.fit',
         to: email,
         subject: 'Reset Your VitalityTracker Password',
         html: getResetPasswordEmailTemplate(resetLink)
