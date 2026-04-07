@@ -451,9 +451,50 @@ app.put('/api/daily-reports/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
     const { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted } = req.body;
 
+    // Build update query dynamically based on provided fields
+    const updates = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (date !== undefined) {
+      updates.push(`date = $${paramIndex++}`);
+      values.push(date);
+    }
+    if (steps !== undefined) {
+      updates.push(`steps = $${paramIndex++}`);
+      values.push(steps);
+    }
+    if (calories_consumed !== undefined) {
+      updates.push(`calories_consumed = $${paramIndex++}`);
+      values.push(calories_consumed);
+    }
+    if (protein_consumed !== undefined) {
+      updates.push(`protein_consumed = $${paramIndex++}`);
+      values.push(protein_consumed);
+    }
+    if (exercises_done !== undefined) {
+      updates.push(`exercises_done = $${paramIndex++}`);
+      values.push(exercises_done);
+    }
+    if (meals_count !== undefined) {
+      updates.push(`meals_count = $${paramIndex++}`);
+      values.push(meals_count);
+    }
+    if (submitted !== undefined) {
+      updates.push(`submitted = $${paramIndex++}`);
+      values.push(submitted);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    values.push(id);
+    values.push(req.userId);
+
     const result = await query(
-      'UPDATE daily_reports SET date = $1, steps = $2, calories_consumed = $3, protein_consumed = $4, exercises_done = $5, meals_count = $6, submitted = $7 WHERE id = $8 AND user_id = $9 RETURNING *',
-      [date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted, id, req.userId]
+      `UPDATE daily_reports SET ${updates.join(', ')} WHERE id = $${paramIndex++} AND user_id = $${paramIndex} RETURNING *`,
+      values
     );
 
     if (result.rows.length === 0) {

@@ -164,9 +164,13 @@ export default function Racion() {
     try {
       if (todayReport) {
         await apiClient.entities.DailyReport.update(todayReport.id, {
+          date: today,
           calories_consumed: cal,
           protein_consumed: prot,
           meals_count: meals.length,
+          steps: todayReport.steps || 0,
+          exercises_done: todayReport.exercises_done || 0,
+          submitted: todayReport.submitted || false,
         });
       } else {
         const created = await apiClient.entities.DailyReport.create({
@@ -179,7 +183,7 @@ export default function Racion() {
       }
     } catch (error) {
       console.error('Error saving nutrition data:', error);
-      alert('Error saving nutrition data');
+      alert('Error saving nutrition data. Please try again.');
     }
   }
 
