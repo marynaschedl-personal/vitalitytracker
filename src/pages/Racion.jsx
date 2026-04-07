@@ -83,6 +83,8 @@ export default function Racion() {
   const [todayReport, setTodayReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => { loadData(); }, []);
 
@@ -143,27 +145,30 @@ export default function Racion() {
 
   // ── Save ────────────────────────────────────────────────────────────────────
   async function saveConsumed(newConsumed) {
+    setSaving(true);
+    setSaveError(null);
     const today = moment().format("YYYY-MM-DD");
-    const meals = Object.entries(newConsumed)
-      .filter(([, g]) => g > 0)
-      .map(([foodId, g]) => {
-        const item = FOOD_DATA.find((f) => f.id === foodId);
-        return {
-          foodId,
-          name: item.name,
-          calories: calcKcal(item, g),
-          protein: calcProt(item, g),
-          consumed_grams: g,
-          target_grams: item.maxGrams,
-          category: item.cat,
-        };
-      });
-    const cal = meals.reduce((s, m) => s + m.calories, 0);
-    const prot = meals.reduce((s, m) => s + m.protein, 0);
 
     try {
+      const meals = Object.entries(newConsumed)
+        .filter(([, g]) => g > 0)
+        .map(([foodId, g]) => {
+          const item = FOOD_DATA.find((f) => f.id === foodId);
+          return {
+            foodId,
+            name: item.name,
+            calories: calcKcal(item, g),
+            protein: calcProt(item, g),
+            consumed_grams: g,
+            target_grams: item.maxGrams,
+            category: item.cat,
+          };
+        });
+      const cal = meals.reduce((s, m) => s + m.calories, 0);
+      const prot = meals.reduce((s, m) => s + m.protein, 0);
+
       if (todayReport) {
-        await apiClient.entities.DailyReport.update(todayReport.id, {
+        const updated = await apiClient.entities.DailyReport.update(todayReport.id, {
           date: today,
           calories_consumed: cal,
           protein_consumed: prot,
@@ -172,6 +177,7 @@ export default function Racion() {
           exercises_done: todayReport.exercises_done || 0,
           submitted: todayReport.submitted || false,
         });
+        setTodayReport(updated);
       } else {
         const created = await apiClient.entities.DailyReport.create({
           date: today,
@@ -181,9 +187,13 @@ export default function Racion() {
         });
         setTodayReport(created);
       }
+      setSaving(false);
+      return true;
     } catch (error) {
       console.error('Error saving nutrition data:', error);
-      alert('Error saving nutrition data. Please try again.');
+      setSaveError(error.message || 'Failed to save nutrition data');
+      setSaving(false);
+      return false;
     }
   }
 
@@ -197,8 +207,10 @@ export default function Racion() {
   async function confirmItem() {
     const newConsumed = { ...consumed, [selected.id]: sliderVal };
     setConsumed(newConsumed);
-    setSelected(null);
-    await saveConsumed(newConsumed);
+    const success = await saveConsumed(newConsumed);
+    if (success) {
+      setSelected(null);
+    }
   }
 
   if (loading) {
@@ -340,6 +352,13 @@ export default function Racion() {
                 Consumed in category: {Math.round(catStats.fraction * 100)}% / 100%
               </div>
 
+              {/* Save error */}
+              {saveError && (
+                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
+                  {saveError}
+                </div>
+              )}
+
               {/* Slider and Input */}
               <div>
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
@@ -395,11 +414,11 @@ export default function Racion() {
               </div>
 
               <div className="flex gap-3">
-                <Button variant="outline" className="flex-1 border-border" onClick={() => setSelected(null)}>
+                <Button variant="outline" className="flex-1 border-border" onClick={() => setSelected(null)} disabled={saving}>
                   Cancel
                 </Button>
-                <Button className="flex-1" onClick={confirmItem}>
-                  Confirm
+                <Button className="flex-1" onClick={confirmItem} disabled={saving}>
+                  {saving ? 'Saving...' : 'Confirm'}
                 </Button>
               </div>
             </div>
