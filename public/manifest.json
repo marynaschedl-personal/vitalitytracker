@@ -1,0 +1,18 @@
+{
+  "name": "VitalityTracker",
+  "short_name": "VitalityTracker",
+  "description": "Track your daily nutrition, steps, and body measurements. Simple health and fitness tracking.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

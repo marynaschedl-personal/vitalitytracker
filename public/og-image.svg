@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <style>
+      .bg { fill: #667eea; }
+      .text-title { fill: white; font-family: Arial, sans-serif; font-size: 72px; font-weight: bold; }
+      .text-subtitle { fill: rgba(255,255,255,0.9); font-family: Arial, sans-serif; font-size: 36px; }
+      .icon { fill: white; opacity: 0.2; }
+    </style>
+  </defs>
+
+  <!-- Background gradient effect -->
+  <rect class="bg" width="1200" height="630"/>
+  <rect fill="#764ba2" width="1200" height="630" opacity="0.1"/>
+
+  <!-- Decorative icons in background -->
+  <text class="icon" x="100" y="150" font-size="120">📊</text>
+  <text class="icon" x="1000" y="450" font-size="120">👟</text>
+  <text class="icon" x="950" y="100" font-size="100">📈</text>
+
+  <!-- Main content -->
+  <g>
+    <!-- Logo -->
+    <circle cx="120" cy="315" r="90" fill="white" opacity="0.15"/>
+    <circle cx="120" cy="315" r="80" fill="none" stroke="white" stroke-width="4"/>
+
+    <!-- Heart in logo -->
+    <path d="M120 275c0-8 6-14 14-14 5 0 10 3 12 7 2-4 7-7 12-7 8 0 14 6 14 14 0 12-13 24-26 33-13-9-26-21-26-33z" fill="white"/>
+
+    <!-- Text -->
+    <text x="250" y="380" class="text-title">VitalityTracker</text>
+    <text x="250" y="430" class="text-subtitle">Track Your Health, Simply</text>
+
+    <!-- Tagline -->
+    <text x="250" y="500" fill="rgba(255,255,255,0.7)" font-family="Arial, sans-serif" font-size="28">
+      Nutrition • Steps • Body Measurements
+    </text>
+  </g>
+</svg>

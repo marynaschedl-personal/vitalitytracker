@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <style>
+      .logo-bg { fill: #667eea; }
+      .logo-text { fill: white; font-family: Arial, sans-serif; font-weight: bold; }
+      .logo-icon { fill: white; }
+    </style>
+  </defs>
+  <!-- Background -->
+  <rect class="logo-bg" width="256" height="256" rx="60"/>
+
+  <!-- Heart icon -->
+  <path class="logo-icon" d="M128 220c-1 0-2 0-3-.1-40-4.5-70-35-70-72 0-25.5 19-46.5 43-49 8.5-1 16.5 1.5 23 7.5 6.5-6 14.5-8.5 23-7.5 24 2.5 43 23.5 43 49 0 37-30 67.5-70 72-1 .1-2 .1-3 .1z"/>
+
+  <!-- Checkmark -->
+  <path class="logo-icon" d="M165 95l-50 50-25-25" stroke="white" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
