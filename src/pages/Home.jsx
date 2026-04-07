@@ -61,9 +61,13 @@ export default function Home() {
   };
 
   useEffect(() => {
+    console.log('Home useEffect: Loading initial data');
     loadData();
     // Reload data when user returns to the page
-    const handleFocus = () => loadData();
+    const handleFocus = () => {
+      console.log('Home: Window focus detected, reloading data');
+      loadData();
+    };
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
@@ -123,6 +127,9 @@ export default function Home() {
   }
 
   const report = todayReport || {};
+  console.log('Home render - todayReport:', todayReport);
+  console.log('Home render - report.steps:', report.steps);
+
   const mealsConsumed = report.meals_count || 0;
   const caloriePercent = report.calories_goal ? Math.round((report.calories_consumed / report.calories_goal) * 100) : 0;
   const stepsPercent = report.steps_goal ? Math.round((report.steps / report.steps_goal) * 100) : 0;
