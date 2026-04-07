@@ -60,7 +60,13 @@ export default function Home() {
     navigate("/login");
   };
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    loadData();
+    // Reload data when user returns to the page
+    const handleFocus = () => loadData();
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
 
   async function loadData() {
     const today = moment().format("YYYY-MM-DD");

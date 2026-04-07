@@ -38,7 +38,7 @@ export default function FeedbackButton() {
       {/* Feedback Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 bg-primary text-primary-foreground rounded-full p-3 shadow-lg hover:bg-primary/90 active:scale-95 transition-all z-40"
+        className="fixed bottom-24 right-6 bg-primary text-primary-foreground rounded-full p-3 shadow-lg hover:bg-primary/90 active:scale-95 transition-all z-40"
         title="Send feedback"
       >
         <MessageCircle className="w-5 h-5" />
