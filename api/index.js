@@ -458,14 +458,14 @@ app.post('/api/daily-reports', verifyToken, async (req, res) => {
     const { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted } = req.body;
     console.log('Parsed fields:', { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted });
 
-    console.log('Checking if report exists for', { userId: req.userId, date });
-    // Check if report already exists for this date
+    console.log('Checking if report exists for', { userId: req.userId, date, dateType: typeof date });
+    // Check if report already exists for this date - cast to date to ignore time
     const existing = await query(
-      'SELECT * FROM daily_reports WHERE user_id = $1 AND date = $2',
+      'SELECT * FROM daily_reports WHERE user_id = $1 AND date::DATE = $2::DATE',
       [req.userId, date]
     );
 
-    console.log('Query result - existing reports:', existing.rows.length);
+    console.log('Query result - existing reports:', existing.rows.length, existing.rows.length > 0 ? existing.rows[0] : 'none');
 
     if (existing.rows.length > 0) {
       // Update existing instead of creating
