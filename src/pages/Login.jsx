@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Eye, EyeOff } from 'lucide-react';
@@ -8,6 +9,7 @@ import { Eye, EyeOff } from 'lucide-react';
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('demo@example.com');
   const [password, setPassword] = useState('demo123');
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +25,7 @@ export default function Login() {
       await login(email, password);
       navigate('/');
     } catch (err) {
-      setError('Login failed. Try with demo@example.com');
+      setError(t('login_error'));
     } finally {
       setLoading(false);
     }
@@ -33,13 +35,13 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">VitalityTracker</h1>
-          <p className="text-muted-foreground">Track your health and fitness goals</p>
+          <h1 className="text-4xl font-bold text-primary mb-2">{t('login_app_name')}</h1>
+          <p className="text-muted-foreground">{t('login_tagline')}</p>
         </div>
 
         <form onSubmit={handleLogin} className="bg-card border border-border rounded-lg p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Email</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('login_email_label')}</label>
             <Input
               type="email"
               value={email}
@@ -50,7 +52,7 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Password</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('login_password_label')}</label>
             <div className="relative">
               <Input
                 type={showPassword ? 'text' : 'password'}
@@ -76,43 +78,43 @@ export default function Login() {
           )}
 
           <Button type="submit" disabled={loading} className="w-full">
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? t('login_logging_in') : t('login_login_btn')}
           </Button>
 
           <div className="text-center text-xs">
             <Link to="/forgot-password" className="text-primary hover:underline font-medium">
-              Forgot password?
+              {t('login_forgot_password')}
             </Link>
           </div>
 
           <div className="space-y-2 text-xs text-muted-foreground text-center mt-4">
             <p>
-              Demo: demo@example.com / demo123
+              {t('login_demo_hint')}
             </p>
             <p>
-              Or{' '}
+              {t('login_no_account')}{' '}
               <Link to="/register" className="text-primary hover:underline font-medium">
-                create a new account
+                {t('login_create_account')}
               </Link>
             </p>
           </div>
         </form>
 
         <div className="mt-8 pt-8 border-t border-border">
-          <p className="text-muted-foreground text-sm mb-6 text-center">No marketing fluff. Just simple calorie intake, steps, and lifestyle tracking.</p>
+          <p className="text-muted-foreground text-sm mb-6 text-center">{t('login_features_intro')}</p>
 
           <div className="space-y-3 text-xs text-muted-foreground">
             <div className="flex items-center justify-center gap-2">
               <span>📊</span>
-              <span>Daily nutrition & calorie tracking</span>
+              <span>{t('login_feature_nutrition')}</span>
             </div>
             <div className="flex items-center justify-center gap-2">
               <span>👟</span>
-              <span>Step counter & fitness goals</span>
+              <span>{t('login_feature_steps')}</span>
             </div>
             <div className="flex items-center justify-center gap-2">
               <span>📈</span>
-              <span>Body measurements & progress</span>
+              <span>{t('login_feature_measurements')}</span>
             </div>
           </div>
         </div>

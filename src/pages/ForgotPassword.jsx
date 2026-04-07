@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { apiClient } from '@/api/apiClient';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +23,7 @@ export default function ForgotPassword() {
       setSuccess(true);
       setEmail('');
     } catch (err) {
-      setError('Failed to send reset email');
+      setError(t('forgot_error'));
     } finally {
       setLoading(false);
     }
@@ -31,19 +33,19 @@ export default function ForgotPassword() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">VitalityTracker</h1>
-          <p className="text-muted-foreground">Reset Your Password</p>
+          <h1 className="text-4xl font-bold text-primary mb-2">{t('forgot_app_name')}</h1>
+          <p className="text-muted-foreground">{t('forgot_title')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-card border border-border rounded-lg p-6 space-y-4">
           {!success ? (
             <>
               <p className="text-sm text-muted-foreground text-center mb-4">
-                Enter your email address and we'll send you a link to reset your password.
+                {t('forgot_description')}
               </p>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Email</label>
+                <label className="block text-sm font-medium text-foreground mb-2">{t('forgot_email_label')}</label>
                 <Input
                   type="email"
                   value={email}
@@ -61,26 +63,26 @@ export default function ForgotPassword() {
               )}
 
               <Button type="submit" disabled={loading} className="w-full">
-                {loading ? 'Sending...' : 'Send Reset Link'}
+                {loading ? t('forgot_sending') : t('forgot_button')}
               </Button>
             </>
           ) : (
             <div className="text-center space-y-4">
               <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                <p className="text-sm text-green-600 font-medium">Check your email!</p>
+                <p className="text-sm text-green-600 font-medium">{t('forgot_success_heading')}</p>
                 <p className="text-xs text-green-600 mt-1">
-                  We've sent a password reset link to {email}
+                  {t('forgot_success_message').replace('{email}', email)}
                 </p>
               </div>
               <Button onClick={() => navigate('/login')} className="w-full">
-                Back to Login
+                {t('forgot_back_to_login')}
               </Button>
             </div>
           )}
 
           <div className="text-center text-xs text-muted-foreground mt-4">
             <Link to="/login" className="text-primary hover:underline font-medium">
-              Back to Login
+              {t('forgot_back_to_login')}
             </Link>
           </div>
         </form>
