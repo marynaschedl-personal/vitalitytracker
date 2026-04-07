@@ -1,58 +1,60 @@
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Button } from '@/components/ui/button';
 import FeedbackButton from '@/components/FeedbackButton';
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-primary">VitalityTracker</h1>
+          <h1 className="text-2xl font-bold text-primary">{t('landing_app_name')}</h1>
           <Button onClick={() => navigate('/login')} variant="outline">
-            Login
+            {t('landing_login_btn')}
           </Button>
         </div>
       </header>
 
       {/* Hero Section */}
       <section className="max-w-6xl mx-auto px-4 py-20 text-center">
-        <h2 className="text-5xl font-bold mb-6">Track Your Health, Simply</h2>
+        <h2 className="text-5xl font-bold mb-6">{t('landing_hero_heading')}</h2>
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          No marketing fluff. Just simple calorie intake, steps, and lifestyle tracking. Monitor your daily nutrition, fitness goals, and body measurements all in one place.
+          {t('landing_hero_paragraph')}
         </p>
         <Button onClick={() => navigate('/register')} size="lg" className="text-lg px-8">
-          Start Tracking Free
+          {t('landing_cta_start')}
         </Button>
       </section>
 
       {/* Features Section */}
       <section className="max-w-6xl mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">What You Can Track</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">{t('landing_features_heading')}</h2>
         <div className="grid md:grid-cols-3 gap-8">
           <article className="bg-card border border-border rounded-lg p-8">
             <div className="text-4xl mb-4">📊</div>
-            <h3 className="text-xl font-bold mb-4">Daily Nutrition</h3>
+            <h3 className="text-xl font-bold mb-4">{t('landing_feature_nutrition_title')}</h3>
             <p className="text-muted-foreground">
-              Log your calorie intake and monitor your protein consumption. Track every meal and hit your nutrition goals.
+              {t('landing_feature_nutrition_desc')}
             </p>
           </article>
 
           <article className="bg-card border border-border rounded-lg p-8">
             <div className="text-4xl mb-4">👟</div>
-            <h3 className="text-xl font-bold mb-4">Step Counter</h3>
+            <h3 className="text-xl font-bold mb-4">{t('landing_feature_steps_title')}</h3>
             <p className="text-muted-foreground">
-              Monitor your daily steps and set personalized goals. Watch your progress and stay motivated to move more.
+              {t('landing_feature_steps_desc')}
             </p>
           </article>
 
           <article className="bg-card border border-border rounded-lg p-8">
             <div className="text-4xl mb-4">📈</div>
-            <h3 className="text-xl font-bold mb-4">Body Measurements</h3>
+            <h3 className="text-xl font-bold mb-4">{t('landing_feature_measurements_title')}</h3>
             <p className="text-muted-foreground">
-              Track weight, chest, waist, shoulders, hips, and thighs. Visualize your progress with detailed charts.
+              {t('landing_feature_measurements_desc')}
             </p>
           </article>
         </div>
@@ -60,46 +62,46 @@ export default function Landing() {
 
       {/* Benefits Section */}
       <section className="max-w-6xl mx-auto px-4 py-16 bg-card rounded-lg border border-border p-8">
-        <h2 className="text-3xl font-bold mb-8">Why Choose VitalityTracker?</h2>
+        <h2 className="text-3xl font-bold mb-8">{t('landing_benefits_heading')}</h2>
         <ul className="space-y-4 text-lg text-muted-foreground">
           <li className="flex items-start gap-3">
             <span className="text-primary font-bold">✓</span>
-            <span>Simple and intuitive interface - no complicated features</span>
+            <span>{t('landing_benefit_1')}</span>
           </li>
           <li className="flex items-start gap-3">
             <span className="text-primary font-bold">✓</span>
-            <span>Real-time progress tracking with visual charts</span>
+            <span>{t('landing_benefit_2')}</span>
           </li>
           <li className="flex items-start gap-3">
             <span className="text-primary font-bold">✓</span>
-            <span>Completely free - no premium features or paywalls</span>
+            <span>{t('landing_benefit_3')}</span>
           </li>
           <li className="flex items-start gap-3">
             <span className="text-primary font-bold">✓</span>
-            <span>Privacy focused - your data is yours alone</span>
+            <span>{t('landing_benefit_4')}</span>
           </li>
           <li className="flex items-start gap-3">
             <span className="text-primary font-bold">✓</span>
-            <span>Multi-metric tracking for comprehensive health insights</span>
+            <span>{t('landing_benefit_5')}</span>
           </li>
         </ul>
       </section>
 
       {/* CTA Section */}
       <section className="max-w-6xl mx-auto px-4 py-20 text-center">
-        <h2 className="text-3xl font-bold mb-6">Ready to Take Control?</h2>
+        <h2 className="text-3xl font-bold mb-6">{t('landing_ready_heading')}</h2>
         <p className="text-lg text-muted-foreground mb-8">
-          Join thousands tracking their health with VitalityTracker
+          {t('landing_ready_subtext')}
         </p>
         <Button onClick={() => navigate('/register')} size="lg" className="text-lg px-8">
-          Create Your Account
+          {t('landing_cta_create')}
         </Button>
       </section>
 
       {/* Footer */}
       <footer className="border-t border-border mt-20 py-8">
         <div className="max-w-6xl mx-auto px-4 text-center text-muted-foreground text-sm">
-          <p>© 2026 VitalityTracker. All rights reserved.</p>
+          <p>{t('landing_footer')}</p>
         </div>
       </footer>
 
