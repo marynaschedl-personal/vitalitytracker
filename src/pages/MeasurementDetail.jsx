@@ -89,8 +89,9 @@ export default function MeasurementDetail() {
   async function loadAndSeed() {
     setLoading(true);
     // Only seed if no measurements exist for this type and user
+    // Only seed for maryna.schedl@gmail.com
     const existing = await dataService.entities.Measurement.filter({ type, user_id: user.id });
-    if (existing.length === 0 && SEED_DATA[type]) {
+    if (existing.length === 0 && user.email === 'maryna.schedl@gmail.com' && SEED_DATA[type]) {
       await Promise.all(
         SEED_DATA[type].map((d) => dataService.entities.Measurement.create({ type, user_id: user.id, ...d }))
       );

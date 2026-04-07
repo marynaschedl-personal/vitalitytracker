@@ -65,9 +65,10 @@ export default function Home() {
   async function loadData() {
     const today = moment().format("YYYY-MM-DD");
 
-    // Load measurements for current user - only seed if none exist
+    // Load measurements for current user
+    // Only seed measurements for maryna.schedl@gmail.com
     let allMeasurements = await dataService.entities.Measurement.filter({ user_id: user.id });
-    if (allMeasurements.length === 0) {
+    if (allMeasurements.length === 0 && user.email === 'maryna.schedl@gmail.com') {
       await Promise.all(
         SEED_MEASUREMENTS.map((m) => dataService.entities.Measurement.create({ ...m, user_id: user.id }))
       );
