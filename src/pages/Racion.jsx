@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { apiClient } from "@/api/apiClient";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { useLanguage } from "@/lib/LanguageContext";
 import { ArrowLeft, X, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -12,48 +13,48 @@ import moment from "moment";
 // ─── Food catalogue ───────────────────────────────────────────────────────────
 const FOOD_DATA = [
   // A – Carbs
-  { id: "a1", cat: "A", name: "Whole-grain flour", kcalPer100: 240, protPer100: 8.3, maxGrams: 75, unit: "g" },
-  { id: "a2", cat: "A", name: "Corn (fresh)", kcalPer100: 239, protPer100: 6.2, maxGrams: 280, unit: "g" },
-  { id: "a3", cat: "A", name: "Lavash bread", kcalPer100: 240, protPer100: 8, maxGrams: 100, unit: "g" },
-  { id: "a4", cat: "A", name: "Pasta", kcalPer100: 238, protPer100: 8.4, maxGrams: 70, unit: "g" },
-  { id: "a5", cat: "A", name: "Brown rice", kcalPer100: 248, protPer100: 7.9, maxGrams: 75, unit: "g" },
-  { id: "a6", cat: "A", name: "Whole grain bread", kcalPer100: 238, protPer100: 8.5, maxGrams: 95, unit: "g" },
-  { id: "a7", cat: "A", name: "Crackers", kcalPer100: 240, protPer100: 7.9, maxGrams: 75, unit: "g" },
+  { id: "a1", cat: "A", nameKey: "food_whole_grain_flour", kcalPer100: 240, protPer100: 8.3, maxGrams: 75, unit: "g" },
+  { id: "a2", cat: "A", nameKey: "food_corn_fresh", kcalPer100: 239, protPer100: 6.2, maxGrams: 280, unit: "g" },
+  { id: "a3", cat: "A", nameKey: "food_lavash_bread", kcalPer100: 240, protPer100: 8, maxGrams: 100, unit: "g" },
+  { id: "a4", cat: "A", nameKey: "food_pasta", kcalPer100: 238, protPer100: 8.4, maxGrams: 70, unit: "g" },
+  { id: "a5", cat: "A", nameKey: "food_brown_rice", kcalPer100: 248, protPer100: 7.9, maxGrams: 75, unit: "g" },
+  { id: "a6", cat: "A", nameKey: "food_whole_grain_bread", kcalPer100: 238, protPer100: 8.5, maxGrams: 95, unit: "g" },
+  { id: "a7", cat: "A", nameKey: "food_crackers", kcalPer100: 240, protPer100: 7.9, maxGrams: 75, unit: "g" },
   // B – Protein
-  { id: "b1", cat: "B", name: "Chicken / turkey fillet", kcalPer100: 402, protPer100: 80.3, maxGrams: 355, unit: "g" },
-  { id: "b2", cat: "B", name: "Seafood", kcalPer100: 400, protPer100: 80, maxGrams: 400, unit: "g" },
-  { id: "b3", cat: "B", name: "Liver", kcalPer100: 403, protPer100: 53.3, maxGrams: 310, unit: "g" },
-  { id: "b4", cat: "B", name: "Fish (>5% fat)", kcalPer100: 400, protPer100: 42.3, maxGrams: 235, unit: "g" },
-  { id: "b5", cat: "B", name: "Fish (<5% fat)", kcalPer100: 403, protPer100: 73, maxGrams: 365, unit: "g" },
-  { id: "b6", cat: "B", name: "Veal", kcalPer100: 400, protPer100: 47, maxGrams: 235, unit: "g" },
-  { id: "b7", cat: "B", name: "Eggs (whole)", kcalPer100: 313, protPer100: 25.1, maxGrams: 4, unit: "pcs" },
+  { id: "b1", cat: "B", nameKey: "food_chicken_turkey", kcalPer100: 402, protPer100: 80.3, maxGrams: 355, unit: "g" },
+  { id: "b2", cat: "B", nameKey: "food_seafood", kcalPer100: 400, protPer100: 80, maxGrams: 400, unit: "g" },
+  { id: "b3", cat: "B", nameKey: "food_liver", kcalPer100: 403, protPer100: 53.3, maxGrams: 310, unit: "g" },
+  { id: "b4", cat: "B", nameKey: "food_fish_high_fat", kcalPer100: 400, protPer100: 42.3, maxGrams: 235, unit: "g" },
+  { id: "b5", cat: "B", nameKey: "food_fish_low_fat", kcalPer100: 403, protPer100: 73, maxGrams: 365, unit: "g" },
+  { id: "b6", cat: "B", nameKey: "food_veal", kcalPer100: 400, protPer100: 47, maxGrams: 235, unit: "g" },
+  { id: "b7", cat: "B", nameKey: "food_eggs", kcalPer100: 313, protPer100: 25.1, maxGrams: 4, unit: "pcs" },
   // V – Vegetables
-  { id: "v1", cat: "V", name: "Mushrooms", kcalPer100: 120, protPer100: 21, maxGrams: 600, unit: "g" },
-  { id: "v2", cat: "V", name: "Fresh vegetables & greens", kcalPer100: 120, protPer100: 9, maxGrams: 600, unit: "g" },
+  { id: "v1", cat: "V", nameKey: "food_mushrooms", kcalPer100: 120, protPer100: 21, maxGrams: 600, unit: "g" },
+  { id: "v2", cat: "V", nameKey: "food_fresh_vegetables", kcalPer100: 120, protPer100: 9, maxGrams: 600, unit: "g" },
   // G – Fats / condiments
-  { id: "g1", cat: "G", name: "Avocado", kcalPer100: 128, protPer100: 1.6, maxGrams: 80, unit: "g" },
-  { id: "g2", cat: "G", name: "Any oil (recommend flaxseed)", kcalPer100: 135, protPer100: 0, maxGrams: 15, unit: "g" },
-  { id: "g3", cat: "G", name: "Mustard", kcalPer100: 127, protPer100: 1.1, maxGrams: 110, unit: "g" },
-  { id: "g4", cat: "G", name: "Ketchup", kcalPer100: 133, protPer100: 1.3, maxGrams: 130, unit: "g" },
-  { id: "g5", cat: "G", name: "Mayonnaise", kcalPer100: 120, protPer100: 0.3, maxGrams: 20, unit: "g" },
-  { id: "g6", cat: "G", name: "Garnish/sauce", kcalPer100: 65, protPer100: 3.6, maxGrams: 100, unit: "g" },
+  { id: "g1", cat: "G", nameKey: "food_avocado", kcalPer100: 128, protPer100: 1.6, maxGrams: 80, unit: "g" },
+  { id: "g2", cat: "G", nameKey: "food_oil", kcalPer100: 135, protPer100: 0, maxGrams: 15, unit: "g" },
+  { id: "g3", cat: "G", nameKey: "food_mustard", kcalPer100: 127, protPer100: 1.1, maxGrams: 110, unit: "g" },
+  { id: "g4", cat: "G", nameKey: "food_ketchup", kcalPer100: 133, protPer100: 1.3, maxGrams: 130, unit: "g" },
+  { id: "g5", cat: "G", nameKey: "food_mayonnaise", kcalPer100: 120, protPer100: 0.3, maxGrams: 20, unit: "g" },
+  { id: "g6", cat: "G", nameKey: "food_sauce", kcalPer100: 65, protPer100: 3.6, maxGrams: 100, unit: "g" },
   // D – Dairy
-  { id: "d1", cat: "D", name: "Kefir 1%", kcalPer100: 151, protPer100: 10.3, maxGrams: 240, unit: "g" },
-  { id: "d2", cat: "D", name: "Milk 1%", kcalPer100: 156, protPer100: 10.4, maxGrams: 340, unit: "g" },
-  { id: "d3", cat: "D", name: "Unsweetened yogurt 1%", kcalPer100: 155, protPer100: 10.9, maxGrams: 340, unit: "g" },
-  { id: "d4", cat: "D", name: "Cottage cheese (0.2%)", kcalPer100: 168, protPer100: 23, maxGrams: 210, unit: "g" },
-  { id: "d5", cat: "D", name: "Melted cheese curds", kcalPer100: 175, protPer100: 10, maxGrams: 50, unit: "g" },
-  { id: "d6", cat: "D", name: "Sour cream 15%", kcalPer100: 198, protPer100: 8.4, maxGrams: 105, unit: "g" },
+  { id: "d1", cat: "D", nameKey: "food_kefir", kcalPer100: 151, protPer100: 10.3, maxGrams: 240, unit: "g" },
+  { id: "d2", cat: "D", nameKey: "food_milk", kcalPer100: 156, protPer100: 10.4, maxGrams: 340, unit: "g" },
+  { id: "d3", cat: "D", nameKey: "food_yogurt", kcalPer100: 155, protPer100: 10.9, maxGrams: 340, unit: "g" },
+  { id: "d4", cat: "D", nameKey: "food_cottage_cheese", kcalPer100: 168, protPer100: 23, maxGrams: 210, unit: "g" },
+  { id: "d5", cat: "D", nameKey: "food_cheese_curds", kcalPer100: 175, protPer100: 10, maxGrams: 50, unit: "g" },
+  { id: "d6", cat: "D", nameKey: "food_sour_cream", kcalPer100: 198, protPer100: 8.4, maxGrams: 105, unit: "g" },
   // E – Fruits (high sugar)
-  { id: "e1", cat: "E", name: "Bananas, grapes, persimmon", kcalPer100: 200, protPer100: 2.1, maxGrams: 210, unit: "g" },
-  { id: "e2", cat: "E", name: "Fruits & berries", kcalPer100: 200, protPer100: 4.7, maxGrams: 400, unit: "g" },
+  { id: "e1", cat: "E", nameKey: "food_fruits_high_sugar", kcalPer100: 200, protPer100: 2.1, maxGrams: 210, unit: "g" },
+  { id: "e2", cat: "E", nameKey: "food_fruits_berries", kcalPer100: 200, protPer100: 4.7, maxGrams: 400, unit: "g" },
   // N – Nuts
-  { id: "n1", cat: "N", name: "Any nuts (recommend walnuts)", kcalPer100: 60, protPer100: 2.6, maxGrams: 10, unit: "g" },
+  { id: "n1", cat: "N", nameKey: "food_nuts", kcalPer100: 60, protPer100: 2.6, maxGrams: 10, unit: "g" },
   // J – Junk / anything
-  { id: "j1", cat: "J", name: "Anything (sweets, snacks, sausage)", kcalPer100: 425, protPer100: 4.3, maxGrams: 85, unit: "g" },
-  { id: "j2", cat: "J", name: "Beer", kcalPer100: 103, protPer100: 0, maxGrams: 240, unit: "g" },
-  { id: "j3", cat: "J", name: "Dry wine", kcalPer100: 164, protPer100: 0, maxGrams: 150, unit: "g" },
-  { id: "j4", cat: "J", name: "Strong alcoholic drinks", kcalPer100: 110, protPer100: 0, maxGrams: 50, unit: "g" },
+  { id: "j1", cat: "J", nameKey: "food_junk", kcalPer100: 425, protPer100: 4.3, maxGrams: 85, unit: "g" },
+  { id: "j2", cat: "J", nameKey: "food_beer", kcalPer100: 103, protPer100: 0, maxGrams: 240, unit: "g" },
+  { id: "j3", cat: "J", nameKey: "food_dry_wine", kcalPer100: 164, protPer100: 0, maxGrams: 150, unit: "g" },
+  { id: "j4", cat: "J", nameKey: "food_strong_alcohol", kcalPer100: 110, protPer100: 0, maxGrams: 50, unit: "g" },
 ];
 
 const CAT_COLORS = {
@@ -77,6 +78,7 @@ function calcProt(item, grams) {
 export default function Racion() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [consumed, setConsumed] = useState({}); // { foodId: grams }
   const [selected, setSelected] = useState(null); // food item
   const [sliderVal, setSliderVal] = useState(0);
@@ -245,7 +247,7 @@ export default function Racion() {
         <button onClick={() => navigate("/")} className="text-muted-foreground">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-bold">Nutrition</h1>
+        <h1 className="text-xl font-bold">{t('racion_title')}</h1>
       </div>
 
       {/* Search */}
@@ -253,7 +255,7 @@ export default function Racion() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Search foods..."
+          placeholder={t('racion_search_placeholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10 bg-secondary border-border"
@@ -263,9 +265,9 @@ export default function Racion() {
       {/* Summary */}
       <div className="text-center mb-6">
         <p className="text-4xl font-bold">{totalProt.toFixed(0)} g</p>
-        <p className="text-sm text-muted-foreground">protein</p>
+        <p className="text-sm text-muted-foreground">{t('racion_protein')}</p>
         <div className="flex items-center justify-between mt-4 mb-1">
-          <span className="text-sm text-muted-foreground">Calories</span>
+          <span className="text-sm text-muted-foreground">{t('racion_calories')}</span>
           <span className="text-sm text-muted-foreground">{totalKcal} / {kcalGoal} kcal</span>
         </div>
         <div className="h-2 bg-secondary rounded-full">
@@ -280,7 +282,7 @@ export default function Racion() {
       <div className="space-y-2">
         {filteredFoods.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <p className="text-sm">No foods found matching "{searchQuery}"</p>
+            <p className="text-sm">{t('racion_no_results').replace('{query}', searchQuery)}</p>
           </div>
         ) : (
           filteredFoods.map((item) => {
@@ -307,7 +309,7 @@ export default function Racion() {
                       {item.cat}
                     </div>
                     <div>
-                      <p className="font-medium text-sm leading-tight">{item.name}</p>
+                      <p className="font-medium text-sm leading-tight">{t(item.nameKey)}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {calcKcal(item, 100)} kcal • {item.protPer100}g protein
                       </p>
@@ -336,7 +338,7 @@ export default function Racion() {
         <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
           <DialogContent className="bg-card border-border">
             <DialogHeader className="flex items-center justify-between">
-              <DialogTitle>{selected.name}</DialogTitle>
+              <DialogTitle>{t(selected.nameKey)}</DialogTitle>
               <button
                 onClick={() => setSelected(null)}
                 className="text-muted-foreground hover:text-foreground transition-colors"
@@ -346,18 +348,18 @@ export default function Racion() {
             </DialogHeader>
             <div className="space-y-4 text-sm">
               <div className="text-center">
-                <p className="text-muted-foreground text-xs">Original recommendation: {selected.maxGrams} g</p>
+                <p className="text-muted-foreground text-xs">{t('racion_original_recommendation').replace('{N}', selected.maxGrams)}</p>
                 <p className="text-primary font-semibold">
-                  Recommended portion: {selectedMax} g
+                  {t('racion_recommended_portion').replace('{N}', selectedMax)}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  ({calcKcal(selected, selectedMax)} kcal out of {calcKcal(selected, selected.maxGrams)} kcal)
+                  {t('racion_kcal_out_of').replace('{N}', calcKcal(selected, selectedMax)).replace('{N}', calcKcal(selected, selected.maxGrams))}
                 </p>
               </div>
 
               {/* Category progress */}
               <div className="bg-secondary rounded-lg px-3 py-2 text-center text-xs text-muted-foreground">
-                Consumed in category: {Math.round(catStats.fraction * 100)}% / 100%
+                {t('racion_consumed_in_category').replace('{N}', Math.round(catStats.fraction * 100))}
               </div>
 
               {/* Save error */}
@@ -370,8 +372,8 @@ export default function Racion() {
               {/* Slider and Input */}
               <div>
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                  <span>Amount (grams): {sliderVal}</span>
-                  <span>(max {selectedMax}g)</span>
+                  <span>{t('racion_amount_grams').replace('{N}', sliderVal)}</span>
+                  <span>{t('racion_max_grams').replace('{N}', selectedMax)}</span>
                 </div>
                 <Slider
                   value={[sliderVal]}
@@ -382,7 +384,7 @@ export default function Racion() {
                   className="my-2"
                 />
                 <div className="mt-3">
-                  <label className="block text-xs text-muted-foreground mb-1">Enter grams:</label>
+                  <label className="block text-xs text-muted-foreground mb-1">{t('racion_enter_grams')}</label>
                   <Input
                     type="number"
                     min="0"
@@ -399,11 +401,11 @@ export default function Racion() {
                 <div className="flex justify-center gap-4 mt-2">
                   <span className="text-center">
                     <p className="text-xl font-bold">{selectedKcal}</p>
-                    <p className="text-xs text-muted-foreground">kcal</p>
+                    <p className="text-xs text-muted-foreground">{t('racion_kcal')}</p>
                   </span>
                   <span className="text-center">
                     <p className="text-xl font-bold">{selectedProt}g</p>
-                    <p className="text-xs text-muted-foreground">protein</p>
+                    <p className="text-xs text-muted-foreground">{t('racion_protein')}</p>
                   </span>
                 </div>
               </div>
@@ -423,10 +425,10 @@ export default function Racion() {
 
               <div className="flex gap-3">
                 <Button variant="outline" className="flex-1 border-border" onClick={() => setSelected(null)} disabled={saving}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button className="flex-1" onClick={confirmItem} disabled={saving}>
-                  {saving ? 'Saving...' : 'Confirm'}
+                  {saving ? t('racion_saving') : t('racion_confirm')}
                 </Button>
               </div>
             </div>
