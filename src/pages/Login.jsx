@@ -86,6 +86,25 @@ export default function Login() {
             </p>
           </div>
         </form>
+
+        <div className="mt-8 pt-8 border-t border-border">
+          <p className="text-muted-foreground text-sm mb-6 text-center">No marketing fluff. Just simple calorie intake, steps, and lifestyle tracking.</p>
+
+          <div className="space-y-3 text-xs text-muted-foreground">
+            <div className="flex items-center justify-center gap-2">
+              <span>📊</span>
+              <span>Daily nutrition & calorie tracking</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <span>👟</span>
+              <span>Step counter & fitness goals</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <span>📈</span>
+              <span>Body measurements & progress</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
