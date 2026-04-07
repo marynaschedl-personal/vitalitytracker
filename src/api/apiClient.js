@@ -9,7 +9,6 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3100/api';
 class APIClient {
   constructor() {
     this.token = localStorage.getItem('auth_token');
-    console.log('[APIClient] Initialized with token:', this.token ? this.token.substring(0, 20) + '...' : 'none');
     this.entities = {
       User: new EntityAPI('auth', this),
       DailyReport: new EntityAPI('daily-reports', this),
@@ -20,7 +19,6 @@ class APIClient {
 
   setToken(token) {
     this.token = token;
-    console.log('[APIClient] setToken called with:', token ? token.substring(0, 20) + '...' : 'none');
     localStorage.setItem('auth_token', token);
   }
 
@@ -134,16 +132,9 @@ class EntityAPI {
 const originalRequest = APIClient.prototype.request;
 APIClient.prototype.request = async function(method, endpoint, data = null, includeAuth = true) {
   try {
-    const headers = this.getHeaders(includeAuth);
-    console.log(`[API] ${method} ${endpoint}`, {
-      hasToken: !!this.token,
-      auth: headers.Authorization ? headers.Authorization.substring(0, 20) + '...' : 'none',
-      data
-    });
-
     const options = {
       method,
-      headers,
+      headers: this.getHeaders(includeAuth),
     };
 
     if (data) {

@@ -19,14 +19,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Global request logger
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`, {
-    auth: req.headers.authorization ? req.headers.authorization.substring(0, 30) + '...' : 'none',
-    body: req.body
-  });
-  next();
-});
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
@@ -357,22 +349,17 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
 // Middleware to verify JWT
 const verifyToken = (req, res, next) => {
-  console.log('[verifyToken] Called for', req.method, req.path);
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
-    console.log('[verifyToken] NO TOKEN FOUND');
     return res.status(401).json({ error: 'No token provided' });
   }
 
   try {
-    console.log('[verifyToken] Token found, verifying...');
     const decoded = jwt.verify(token, JWT_SECRET);
-    console.log('[verifyToken] Token valid, userId:', decoded.userId);
     req.userId = decoded.userId;
     next();
   } catch (error) {
-    console.log('[verifyToken] Token invalid:', error.message);
     res.status(401).json({ error: 'Invalid token' });
   }
 };
@@ -437,10 +424,6 @@ app.get('/api/daily-reports', verifyToken, async (req, res) => {
       'SELECT * FROM daily_reports WHERE user_id = $1 ORDER BY date DESC',
       [req.userId]
     );
-    console.log('GET daily-reports - returning', result.rows.length, 'reports');
-    if (result.rows.length > 0) {
-      console.log('Latest report:', result.rows[0]);
-    }
     res.json(result.rows);
   } catch (error) {
     console.error('Get daily reports error:', error);
@@ -449,51 +432,32 @@ app.get('/api/daily-reports', verifyToken, async (req, res) => {
 });
 
 app.post('/api/daily-reports', verifyToken, async (req, res) => {
-  console.log('=== POST /api/daily-reports START ===');
-  console.log('req.body content:', JSON.stringify(req.body));
-  console.log('req.body keys:', Object.keys(req.body));
-  console.log('Content-Type:', req.headers['content-type']);
-
   try {
     const { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted } = req.body;
-    console.log('Extracted values:', { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted });
 
-    console.log('Checking if report exists for', { userId: req.userId, date, dateType: typeof date });
     // Check if report already exists for this date - cast to date to ignore time
     const existing = await query(
       'SELECT * FROM daily_reports WHERE user_id = $1 AND date::DATE = $2::DATE',
       [req.userId, date]
     );
 
-    console.log('Query result - existing reports:', existing.rows.length, existing.rows.length > 0 ? existing.rows[0] : 'none');
-
     if (existing.rows.length > 0) {
       // Update existing instead of creating
-      console.log('Report exists, updating...');
       const result = await query(
-        `UPDATE daily_reports SET steps = $1, calories_consumed = $2, protein_consumed = $3, exercises_done = $4, meals_count = $5, submitted = $6 WHERE user_id = $7 AND date = $8 RETURNING *`,
+        `UPDATE daily_reports SET steps = $1, calories_consumed = $2, protein_consumed = $3, exercises_done = $4, meals_count = $5, submitted = $6 WHERE user_id = $7 AND date::DATE = $8::DATE RETURNING *`,
         [steps || 0, calories_consumed || 0, protein_consumed || 0, exercises_done || 0, meals_count || 0, submitted || false, req.userId, date]
       );
-      console.log('Updated report:', result.rows[0]);
-      console.log('=== POST /api/daily-reports END (UPDATE) ===');
       return res.json(result.rows[0]);
     }
 
-    console.log('Creating new report...');
     const result = await query(
       'INSERT INTO daily_reports (user_id, date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted, calories_goal, steps_goal, exercises_goal) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1766, 7000, 3) RETURNING *',
       [req.userId, date, steps || 0, calories_consumed || 0, protein_consumed || 0, exercises_done || 0, meals_count || 0, submitted || false]
     );
-    console.log('Created report:', result.rows[0]);
-    console.log('=== POST /api/daily-reports END (CREATE) ===');
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error('=== POST /api/daily-reports ERROR ===');
-    console.error('Error name:', error.name);
-    console.error('Error message:', error.message);
-    console.error('Error code:', error.code);
-    console.error('Full error:', error);
+    console.error('Create daily report error:', error);
     res.status(500).json({ error: 'Failed to create daily report' });
   }
 });

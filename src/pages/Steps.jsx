@@ -83,7 +83,6 @@ export default function Steps() {
 
     try {
       if (todayReport) {
-        console.log('Updating steps:', { id: todayReport.id, steps });
         const updated = await apiClient.entities.DailyReport.update(todayReport.id, {
           date: todayReport.date,
           steps,
@@ -93,15 +92,12 @@ export default function Steps() {
           meals_count: todayReport.meals_count || 0,
           submitted: todayReport.submitted || false,
         });
-        console.log('Updated report:', updated);
         setTodayReport(updated);
       } else {
-        console.log('Creating new report with steps:', steps);
         const created = await apiClient.entities.DailyReport.create({
           date: today,
           steps,
         });
-        console.log('Created report:', created);
         setTodayReport(created);
       }
       setSaving(false);

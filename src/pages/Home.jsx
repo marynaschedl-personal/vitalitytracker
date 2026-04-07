@@ -61,13 +61,9 @@ export default function Home() {
   };
 
   useEffect(() => {
-    console.log('Home useEffect: Loading initial data');
     loadData();
     // Reload data when user returns to the page
-    const handleFocus = () => {
-      console.log('Home: Window focus detected, reloading data');
-      loadData();
-    };
+    const handleFocus = () => loadData();
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
@@ -87,14 +83,11 @@ export default function Home() {
     let reports = [];
     try {
       const allReports = await apiClient.entities.DailyReport.list();
-      console.log('Home.jsx - Loaded reports:', allReports);
       reports = allReports.filter((r) => {
         // Convert date to YYYY-MM-DD format for comparison
         const reportDate = moment(r.date).format("YYYY-MM-DD");
-        console.log('Comparing:', reportDate, 'vs', today, '=', reportDate === today);
         return reportDate === today;
       });
-      console.log('Home.jsx - Today:', today, '- Found report:', reports[0]);
       if (reports.length > 0) setTodayReport(reports[0]);
     } catch (error) {
       console.error('Error loading daily reports:', error);
@@ -132,9 +125,6 @@ export default function Home() {
   }
 
   const report = todayReport || {};
-  console.log('Home render - todayReport:', todayReport);
-  console.log('Home render - report.steps:', report.steps);
-
   const mealsConsumed = report.meals_count || 0;
   const caloriePercent = report.calories_goal ? Math.round((report.calories_consumed / report.calories_goal) * 100) : 0;
   const stepsPercent = report.steps_goal ? Math.round((report.steps / report.steps_goal) * 100) : 0;
