@@ -21,63 +21,86 @@ app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-// Email Templates
+// Email Templates (Outlook-compatible)
 function getWelcomeEmailTemplate(name, email) {
   return `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
-          .header h1 { margin: 0; font-size: 32px; }
-          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
-          .feature { margin: 20px 0; padding: 15px; background: white; border-left: 4px solid #667eea; border-radius: 4px; }
-          .feature-icon { font-size: 24px; margin-right: 10px; }
-          .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin-top: 20px; }
-          .footer { text-align: center; margin-top: 30px; color: #999; font-size: 12px; }
-        </style>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Welcome to VitalityTracker! 🎉</h1>
-          </div>
-          <div class="content">
-            <p>Hi ${name || 'there'},</p>
-            <p>Thanks for signing up! You're all set to start tracking your health and fitness journey.</p>
+      <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5;">
+          <tr>
+            <td align="center" style="padding: 20px;">
+              <table width="600" cellpadding="0" cellspacing="0" style="background-color: white; border-collapse: collapse;">
+                <!-- Header -->
+                <tr>
+                  <td align="center" style="background-color: #667eea; color: white; padding: 30px 20px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 32px; font-weight: bold;">Welcome to VitalityTracker! 🎉</h1>
+                  </td>
+                </tr>
+                <!-- Content -->
+                <tr>
+                  <td style="padding: 30px 20px; background-color: #ffffff; color: #333;">
+                    <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6;">Hi ${name || 'there'},</p>
+                    <p style="margin: 0 0 25px 0; font-size: 16px; line-height: 1.6;">Thanks for signing up! You're all set to start tracking your health and fitness journey.</p>
 
-            <div class="feature">
-              <span class="feature-icon">📊</span>
-              <strong>Track Daily Nutrition</strong>
-              <p>Log your calorie intake and monitor your protein consumption.</p>
-            </div>
+                    <!-- Feature 1 -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0; border-left: 4px solid #667eea;">
+                      <tr>
+                        <td style="padding: 15px; background-color: #fafafa;">
+                          <p style="margin: 0 0 8px 0; font-size: 18px;">📊 <strong>Track Daily Nutrition</strong></p>
+                          <p style="margin: 0; font-size: 14px; color: #666;">Log your calorie intake and monitor your protein consumption.</p>
+                        </td>
+                      </tr>
+                    </table>
 
-            <div class="feature">
-              <span class="feature-icon">👟</span>
-              <strong>Monitor Your Steps</strong>
-              <p>Set daily step goals and watch your progress in real-time.</p>
-            </div>
+                    <!-- Feature 2 -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0; border-left: 4px solid #667eea;">
+                      <tr>
+                        <td style="padding: 15px; background-color: #fafafa;">
+                          <p style="margin: 0 0 8px 0; font-size: 18px;">👟 <strong>Monitor Your Steps</strong></p>
+                          <p style="margin: 0; font-size: 14px; color: #666;">Set daily step goals and watch your progress in real-time.</p>
+                        </td>
+                      </tr>
+                    </table>
 
-            <div class="feature">
-              <span class="feature-icon">📈</span>
-              <strong>Track Body Measurements</strong>
-              <p>Record and visualize your progress with detailed body metrics.</p>
-            </div>
+                    <!-- Feature 3 -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0; border-left: 4px solid #667eea;">
+                      <tr>
+                        <td style="padding: 15px; background-color: #fafafa;">
+                          <p style="margin: 0 0 8px 0; font-size: 18px;">📈 <strong>Track Body Measurements</strong></p>
+                          <p style="margin: 0; font-size: 14px; color: #666;">Record and visualize your progress with detailed body metrics.</p>
+                        </td>
+                      </tr>
+                    </table>
 
-            <p style="margin-top: 30px;">Ready to get started? Log in and create your first daily report!</p>
+                    <p style="margin: 30px 0 20px 0; font-size: 16px; line-height: 1.6;">Ready to get started? Log in and create your first daily report!</p>
 
-            <div style="text-align: center;">
-              <a href="${process.env.FRONTEND_URL}" class="button">Go to VitalityTracker</a>
-            </div>
+                    <!-- CTA Button -->
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center" style="padding: 20px 0;">
+                          <a href="${process.env.FRONTEND_URL}" style="display: inline-block; background-color: #667eea; color: white; padding: 12px 30px; text-decoration: none; font-weight: bold; font-size: 16px;">Go to VitalityTracker</a>
+                        </td>
+                      </tr>
+                    </table>
 
-            <p style="margin-top: 30px; color: #666; font-size: 14px;">Questions? We're here to help. Just reply to this email.</p>
-          </div>
-          <div class="footer">
-            <p>© 2026 VitalityTracker. All rights reserved.</p>
-          </div>
-        </div>
+                    <p style="margin: 30px 0 0 0; font-size: 14px; color: #999;">Questions? We're here to help. Just reply to this email.</p>
+                  </td>
+                </tr>
+                <!-- Footer -->
+                <tr>
+                  <td style="padding: 20px; background-color: #f9f9f9; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #999;">
+                    <p style="margin: 0;">© 2026 VitalityTracker. All rights reserved.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
   `;
@@ -88,43 +111,60 @@ function getResetPasswordEmailTemplate(resetLink) {
     <!DOCTYPE html>
     <html>
       <head>
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
-          .header h1 { margin: 0; font-size: 28px; }
-          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
-          .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-          .alert { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #999; font-size: 12px; }
-        </style>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Reset Your Password</h1>
-          </div>
-          <div class="content">
-            <p>We received a request to reset your VitalityTracker password.</p>
+      <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5;">
+          <tr>
+            <td align="center" style="padding: 20px;">
+              <table width="600" cellpadding="0" cellspacing="0" style="background-color: white; border-collapse: collapse;">
+                <!-- Header -->
+                <tr>
+                  <td align="center" style="background-color: #667eea; color: white; padding: 30px 20px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Reset Your Password</h1>
+                  </td>
+                </tr>
+                <!-- Content -->
+                <tr>
+                  <td style="padding: 30px 20px; background-color: #ffffff; color: #333;">
+                    <p style="margin: 0 0 25px 0; font-size: 16px; line-height: 1.6;">We received a request to reset your VitalityTracker password.</p>
 
-            <div style="text-align: center;">
-              <a href="${resetLink}" class="button">Reset Password</a>
-            </div>
+                    <!-- CTA Button -->
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center" style="padding: 20px 0;">
+                          <a href="${resetLink}" style="display: inline-block; background-color: #667eea; color: white; padding: 12px 30px; text-decoration: none; font-weight: bold; font-size: 16px;">Reset Password</a>
+                        </td>
+                      </tr>
+                    </table>
 
-            <p style="text-align: center; color: #666; font-size: 12px;">Or copy this link:</p>
-            <p style="text-align: center; word-break: break-all; color: #667eea; font-size: 12px;">${resetLink}</p>
+                    <p style="margin: 20px 0 10px 0; text-align: center; font-size: 14px; color: #666;">Or copy this link:</p>
+                    <p style="margin: 0 0 25px 0; text-align: center; word-break: break-all; color: #667eea; font-size: 12px;"><a href="${resetLink}" style="color: #667eea; text-decoration: none;">${resetLink}</a></p>
 
-            <div class="alert">
-              <strong>⏱️ This link expires in 1 hour</strong>
-              <p style="margin: 10px 0 0 0;">If you didn't request a password reset, you can safely ignore this email.</p>
-            </div>
+                    <!-- Alert Box -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0; border-left: 4px solid #ffc107; background-color: #fffbf0;">
+                      <tr>
+                        <td style="padding: 15px;">
+                          <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold;">⏱️ This link expires in 1 hour</p>
+                          <p style="margin: 0; font-size: 14px; color: #666;">If you didn't request a password reset, you can safely ignore this email.</p>
+                        </td>
+                      </tr>
+                    </table>
 
-            <p style="margin-top: 30px; color: #666; font-size: 14px;">Questions? Contact our support team.</p>
-          </div>
-          <div class="footer">
-            <p>© 2026 VitalityTracker. All rights reserved.</p>
-          </div>
-        </div>
+                    <p style="margin: 30px 0 0 0; font-size: 14px; color: #666;">Questions? Contact our support team.</p>
+                  </td>
+                </tr>
+                <!-- Footer -->
+                <tr>
+                  <td style="padding: 20px; background-color: #f9f9f9; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #999;">
+                    <p style="margin: 0;">© 2026 VitalityTracker. All rights reserved.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
   `;
