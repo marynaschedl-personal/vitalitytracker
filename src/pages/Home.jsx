@@ -17,44 +17,6 @@ const formatNumber = (num) => {
   return Number.isInteger(rounded) ? Math.round(rounded) : rounded;
 };
 
-// Seed data from screenshots
-const SEED_MEASUREMENTS = [
-  // Weight data
-  { type: "weight", date: "2026-03-07", value: 67, goal_value: 60, unit: "kg" },
-  { type: "weight", date: "2026-03-13", value: 66.5, goal_value: 60, unit: "kg" },
-  { type: "weight", date: "2026-03-20", value: 66, goal_value: 60, unit: "kg" },
-  { type: "weight", date: "2026-03-31", value: 65.5, goal_value: 60, unit: "kg" },
-  { type: "weight", date: "2026-04-06", value: 65, goal_value: 60, unit: "kg" },
-  // Chest data
-  { type: "chest", date: "2026-03-07", value: 89, unit: "cm" },
-  { type: "chest", date: "2026-03-13", value: 85, unit: "cm" },
-  { type: "chest", date: "2026-03-20", value: 82, unit: "cm" },
-  { type: "chest", date: "2026-03-31", value: 79, unit: "cm" },
-  { type: "chest", date: "2026-04-06", value: 78, unit: "cm" },
-  // Waist data
-  { type: "waist", date: "2026-03-07", value: 80, unit: "cm" },
-  { type: "waist", date: "2026-03-18", value: 73, unit: "cm" },
-  { type: "waist", date: "2026-03-31", value: 68, unit: "cm" },
-  { type: "waist", date: "2026-04-06", value: 68, unit: "cm" },
-  // Shoulder data
-  { type: "shoulder", date: "2026-03-07", value: 33, unit: "cm" },
-  { type: "shoulder", date: "2026-03-13", value: 31, unit: "cm" },
-  { type: "shoulder", date: "2026-03-20", value: 30, unit: "cm" },
-  { type: "shoulder", date: "2026-03-31", value: 28, unit: "cm" },
-  { type: "shoulder", date: "2026-04-06", value: 27, unit: "cm" },
-  // Hips data
-  { type: "hips", date: "2026-03-07", value: 62, unit: "cm" },
-  { type: "hips", date: "2026-03-13", value: 59, unit: "cm" },
-  { type: "hips", date: "2026-03-20", value: 57, unit: "cm" },
-  { type: "hips", date: "2026-03-31", value: 51, unit: "cm" },
-  { type: "hips", date: "2026-04-06", value: 50, unit: "cm" },
-  // Thigh data
-  { type: "thigh", date: "2026-03-07", value: 96, unit: "cm" },
-  { type: "thigh", date: "2026-03-13", value: 94, unit: "cm" },
-  { type: "thigh", date: "2026-03-20", value: 92, unit: "cm" },
-  { type: "thigh", date: "2026-03-31", value: 90, unit: "cm" },
-  { type: "thigh", date: "2026-04-06", value: 89, unit: "cm" },
-];
 
 export default function Home() {
   const navigate = useNavigate();
