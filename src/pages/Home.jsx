@@ -83,7 +83,9 @@ export default function Home() {
     let reports = [];
     try {
       const allReports = await apiClient.entities.DailyReport.list();
+      console.log('Home.jsx - Loaded reports:', allReports);
       reports = allReports.filter((r) => r.date === today);
+      console.log('Home.jsx - Today:', today, '- Found report:', reports[0]);
       if (reports.length > 0) setTodayReport(reports[0]);
     } catch (error) {
       console.error('Error loading daily reports:', error);

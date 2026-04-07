@@ -1,10 +1,14 @@
+import { config } from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
 import { Resend } from 'resend';
-import { query } from './db-neon.js';
+import { query, initializeDatabase } from './db-neon.js';
+
+// Load environment variables FIRST
+config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -18,6 +22,15 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
+
+// Global request logger
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`, {
+    auth: req.headers.authorization ? req.headers.authorization.substring(0, 30) + '...' : 'none',
+    body: req.body
+  });
+  next();
+});
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
@@ -348,17 +361,22 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
 // Middleware to verify JWT
 const verifyToken = (req, res, next) => {
+  console.log('[verifyToken] Called for', req.method, req.path);
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
+    console.log('[verifyToken] NO TOKEN FOUND');
     return res.status(401).json({ error: 'No token provided' });
   }
 
   try {
+    console.log('[verifyToken] Token found, verifying...');
     const decoded = jwt.verify(token, JWT_SECRET);
+    console.log('[verifyToken] Token valid, userId:', decoded.userId);
     req.userId = decoded.userId;
     next();
   } catch (error) {
+    console.log('[verifyToken] Token invalid:', error.message);
     res.status(401).json({ error: 'Invalid token' });
   }
 };
@@ -423,6 +441,10 @@ app.get('/api/daily-reports', verifyToken, async (req, res) => {
       'SELECT * FROM daily_reports WHERE user_id = $1 ORDER BY date DESC',
       [req.userId]
     );
+    console.log('GET daily-reports - returning', result.rows.length, 'reports');
+    if (result.rows.length > 0) {
+      console.log('Latest report:', result.rows[0]);
+    }
     res.json(result.rows);
   } catch (error) {
     console.error('Get daily reports error:', error);
@@ -431,15 +453,23 @@ app.get('/api/daily-reports', verifyToken, async (req, res) => {
 });
 
 app.post('/api/daily-reports', verifyToken, async (req, res) => {
+  console.log('=== POST /api/daily-reports START ===');
+  console.log('Headers:', req.headers.authorization ? 'Bearer token present' : 'NO TOKEN');
+  console.log('req.userId:', req.userId);
+  console.log('req.body:', req.body);
+
   try {
     const { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted } = req.body;
-    console.log('POST daily-reports:', { userId: req.userId, date, calories_consumed, protein_consumed, meals_count });
+    console.log('Parsed fields:', { date, steps, calories_consumed, protein_consumed, exercises_done, meals_count, submitted });
 
+    console.log('Checking if report exists for', { userId: req.userId, date });
     // Check if report already exists for this date
     const existing = await query(
       'SELECT * FROM daily_reports WHERE user_id = $1 AND date = $2',
       [req.userId, date]
     );
+
+    console.log('Query result - existing reports:', existing.rows.length);
 
     if (existing.rows.length > 0) {
       // Update existing instead of creating
@@ -449,6 +479,7 @@ app.post('/api/daily-reports', verifyToken, async (req, res) => {
         [steps || 0, calories_consumed || 0, protein_consumed || 0, exercises_done || 0, meals_count || 0, submitted || false, req.userId, date]
       );
       console.log('Updated report:', result.rows[0]);
+      console.log('=== POST /api/daily-reports END (UPDATE) ===');
       return res.json(result.rows[0]);
     }
 
@@ -458,10 +489,15 @@ app.post('/api/daily-reports', verifyToken, async (req, res) => {
       [req.userId, date, steps || 0, calories_consumed || 0, protein_consumed || 0, exercises_done || 0, meals_count || 0, submitted || false]
     );
     console.log('Created report:', result.rows[0]);
+    console.log('=== POST /api/daily-reports END (CREATE) ===');
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error('Create daily report error:', error);
+    console.error('=== POST /api/daily-reports ERROR ===');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Full error:', error);
     res.status(500).json({ error: 'Failed to create daily report' });
   }
 });
@@ -587,8 +623,34 @@ app.get('/api/health', (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`API server running on port ${PORT}`);
+
+async function start() {
+  try {
+    console.log('Initializing database...');
+    await initializeDatabase();
+    console.log('Database initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize database:', error);
+    process.exit(1);
+  }
+
+  const server = app.listen(PORT, () => {
+    console.log(`API server running on port ${PORT}`);
+  });
+
+  // Handle errors
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  });
+
+  process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+  });
+}
+
+start().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
 });
 
 export default app;

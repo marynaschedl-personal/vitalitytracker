@@ -38,6 +38,8 @@ export default function Steps() {
   const [loading, setLoading] = useState(true);
   const [showEdit, setShowEdit] = useState(false);
   const [stepsInput, setStepsInput] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => { loadData(); }, []);
 
@@ -68,30 +70,48 @@ export default function Steps() {
   }
 
   async function saveSteps() {
+    setSaving(true);
+    setSaveError(null);
     const today = moment().format("YYYY-MM-DD");
     const steps = Number(stepsInput);
 
     if (!steps || isNaN(steps) || steps < 0) {
-      alert("Please enter a valid number of steps");
+      setSaveError("Please enter a valid number of steps");
+      setSaving(false);
       return;
     }
 
     try {
       if (todayReport) {
-        await apiClient.entities.DailyReport.update(todayReport.id, { steps });
+        console.log('Updating steps:', { id: todayReport.id, steps });
+        const updated = await apiClient.entities.DailyReport.update(todayReport.id, {
+          date: todayReport.date,
+          steps,
+          calories_consumed: todayReport.calories_consumed || 0,
+          protein_consumed: todayReport.protein_consumed || 0,
+          exercises_done: todayReport.exercises_done || 0,
+          meals_count: todayReport.meals_count || 0,
+          submitted: todayReport.submitted || false,
+        });
+        console.log('Updated report:', updated);
+        setTodayReport(updated);
       } else {
-        await apiClient.entities.DailyReport.create({
+        console.log('Creating new report with steps:', steps);
+        const created = await apiClient.entities.DailyReport.create({
           date: today,
           steps,
         });
+        console.log('Created report:', created);
+        setTodayReport(created);
       }
+      setSaving(false);
       setShowEdit(false);
       setStepsInput("");
       await loadData();
-      alert("✓ Steps updated successfully");
     } catch (error) {
       console.error("Error saving steps:", error);
-      alert("Error saving steps");
+      setSaveError(error.message || 'Failed to save steps');
+      setSaving(false);
     }
   }
 
@@ -158,13 +178,21 @@ export default function Steps() {
             <button
               onClick={() => setShowEdit(false)}
               className="text-muted-foreground hover:text-foreground transition-colors"
+              disabled={saving}
             >
               <X className="w-5 h-5" />
             </button>
           </DialogHeader>
           <div className="space-y-4">
-            <Input type="number" value={stepsInput} onChange={(e) => setStepsInput(e.target.value)} placeholder="Number of steps" className="bg-secondary border-border" />
-            <Button onClick={saveSteps} className="w-full">Save</Button>
+            <Input type="number" value={stepsInput} onChange={(e) => setStepsInput(e.target.value)} placeholder="Number of steps" className="bg-secondary border-border" disabled={saving} />
+            {saveError && (
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
+                {saveError}
+              </div>
+            )}
+            <Button onClick={saveSteps} className="w-full" disabled={saving}>
+              {saving ? 'Saving...' : 'Save'}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

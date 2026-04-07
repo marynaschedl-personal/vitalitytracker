@@ -1,16 +1,23 @@
 import { Pool } from '@neondatabase/serverless';
 
-const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+let pool = null;
 
-if (!connectionString) {
-  console.warn('⚠️ POSTGRES_URL environment variable not set. Database operations will fail.');
+function initPool() {
+  if (pool) return;
+
+  const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+
+  if (!connectionString) {
+    console.warn('⚠️ POSTGRES_URL environment variable not set. Database operations will fail.');
+    throw new Error('Database connection not configured. POSTGRES_URL is missing.');
+  }
+
+  pool = new Pool({ connectionString });
 }
-
-const pool = connectionString ? new Pool({ connectionString }) : null;
 
 export async function query(text, params = []) {
   if (!pool) {
-    throw new Error('Database connection not configured. POSTGRES_URL is missing.');
+    initPool();
   }
   const client = await pool.connect();
   try {
