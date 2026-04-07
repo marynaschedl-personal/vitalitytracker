@@ -117,17 +117,17 @@ export default function Home() {
           <p className="text-xs text-muted-foreground mt-1">{t('home_subtitle')}</p>
         </div>
         <div className="relative">
-          <div className="flex flex-col items-center">
-            <button
-              onClick={() => setShowLogoutMenu(!showLogoutMenu)}
-              className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold active:scale-[0.95] transition-transform"
-            >
-              {user?.email?.[0]?.toUpperCase() || 'U'}
-            </button>
-            <p className="text-xs text-muted-foreground mt-1 text-center max-w-20 truncate">{user?.email || ''}</p>
-          </div>
+          <button
+            onClick={() => setShowLogoutMenu(!showLogoutMenu)}
+            className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold active:scale-[0.95] transition-transform"
+          >
+            {user?.email?.[0]?.toUpperCase() || 'U'}
+          </button>
           {showLogoutMenu && (
             <div className="absolute right-0 mt-2 bg-card border border-border rounded-lg shadow-lg z-50 min-w-40">
+              <div className="px-4 py-3 border-b border-border">
+                <p className="text-xs text-muted-foreground truncate">{user?.email || ''}</p>
+              </div>
               <button
                 onClick={() => {
                   navigate("/settings");
