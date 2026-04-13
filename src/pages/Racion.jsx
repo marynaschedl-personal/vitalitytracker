@@ -365,7 +365,7 @@ export default function Racion() {
                   <div className="mt-2 h-1 bg-secondary rounded-full">
                     <div
                       className="h-1 bg-primary rounded-full"
-                      style={{ width: `${Math.min((eaten / item.maxGrams) * 100, 100)}%` }}
+                      style={{ width: `${Math.min((eaten / displayMax) * 100, 100)}%` }}
                     />
                   </div>
                 )}
