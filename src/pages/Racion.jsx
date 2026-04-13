@@ -330,11 +330,12 @@ export default function Racion() {
           filteredFoods.map((item) => {
             const eaten = consumed[item.id] || 0;
             const full = isItemFull(item);
-            const hidden = isHiddenByCategory(item) && eaten === 0;
-            if (hidden) return null;
-
             const adjMax = getAdjustedMax(item);
             const displayMax = full ? item.maxGrams : adjMax;
+            const hidden = isHiddenByCategory(item) && eaten === 0;
+            // Also hide if no grams available and nothing eaten
+            const noAvailableGrams = displayMax === 0 && eaten === 0;
+            if (hidden || noAvailableGrams) return null;
             const displayConsumed = item.unit === "pcs" ? `${(eaten / 60).toFixed(0)} pcs` : `${eaten} / ${displayMax} ${t('unit_grams')}`;
 
             return (
