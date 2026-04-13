@@ -132,7 +132,7 @@ export default function Landing() {
                 cursor: 'pointer',
               }}
             >
-              {t('landing_demo_btn')}
+              Demo
             </Button>
           </div>
         </div>
