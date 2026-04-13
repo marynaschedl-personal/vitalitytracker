@@ -65,7 +65,75 @@ export default function Home() {
         const reportDate = moment(r.date).format("YYYY-MM-DD");
         return reportDate === today;
       });
-      if (reports.length > 0) setTodayReport(reports[0]);
+      if (reports.length > 0) {
+        let todayReport = reports[0];
+
+        // Check for unsaved nutrition data in localStorage
+        const nutritionKey = `nutrition_${today}`;
+        const localNutrition = localStorage.getItem(nutritionKey);
+        if (localNutrition) {
+          const consumed = JSON.parse(localNutrition);
+          const FOOD_DATA = [
+            { id: "a1", kcalPer100: 240, protPer100: 8.3 },
+            { id: "a2", kcalPer100: 239, protPer100: 6.2 },
+            { id: "a3", kcalPer100: 240, protPer100: 8 },
+            { id: "a4", kcalPer100: 238, protPer100: 8.4 },
+            { id: "a5", kcalPer100: 248, protPer100: 7.9 },
+            { id: "a6", kcalPer100: 238, protPer100: 8.5 },
+            { id: "a7", kcalPer100: 240, protPer100: 7.9 },
+            { id: "a8", kcalPer100: 238, protPer100: 6.2 },
+            { id: "b1", kcalPer100: 402, protPer100: 80.3 },
+            { id: "b2", kcalPer100: 400, protPer100: 80 },
+            { id: "b3", kcalPer100: 403, protPer100: 53.3 },
+            { id: "b4", kcalPer100: 400, protPer100: 42.3 },
+            { id: "b5", kcalPer100: 403, protPer100: 73 },
+            { id: "b6", kcalPer100: 400, protPer100: 47 },
+            { id: "b7", kcalPer100: 313, protPer100: 25.1 },
+            { id: "v1", kcalPer100: 120, protPer100: 21 },
+            { id: "v2", kcalPer100: 120, protPer100: 9 },
+            { id: "g1", kcalPer100: 128, protPer100: 1.6 },
+            { id: "g2", kcalPer100: 135, protPer100: 0 },
+            { id: "g3", kcalPer100: 127, protPer100: 1.1 },
+            { id: "g4", kcalPer100: 133, protPer100: 1.3 },
+            { id: "g5", kcalPer100: 120, protPer100: 0.3 },
+            { id: "g6", kcalPer100: 65, protPer100: 3.6 },
+            { id: "g7", kcalPer100: 115, protPer100: 1 },
+            { id: "d1", kcalPer100: 151, protPer100: 10.3 },
+            { id: "d2", kcalPer100: 156, protPer100: 10.4 },
+            { id: "d3", kcalPer100: 155, protPer100: 10.9 },
+            { id: "d4", kcalPer100: 168, protPer100: 23 },
+            { id: "d5", kcalPer100: 175, protPer100: 10 },
+            { id: "d6", kcalPer100: 198, protPer100: 8.4 },
+            { id: "e1", kcalPer100: 200, protPer100: 2.1 },
+            { id: "e2", kcalPer100: 200, protPer100: 4.7 },
+            { id: "n1", kcalPer100: 60, protPer100: 2.6 },
+            { id: "j1", kcalPer100: 425, protPer100: 4.3 },
+            { id: "j2", kcalPer100: 103, protPer100: 0 },
+            { id: "j3", kcalPer100: 164, protPer100: 0 },
+            { id: "j4", kcalPer100: 110, protPer100: 0 },
+          ];
+
+          let totalKcal = 0;
+          let totalProt = 0;
+          Object.entries(consumed).forEach(([foodId, grams]) => {
+            const food = FOOD_DATA.find(f => f.id === foodId);
+            if (food && grams > 0) {
+              totalKcal += Math.round((food.kcalPer100 * grams) / 100);
+              totalProt += +((food.protPer100 * grams) / 100).toFixed(1);
+            }
+          });
+
+          // Update report with localStorage values
+          todayReport = {
+            ...todayReport,
+            calories_consumed: totalKcal,
+            protein_consumed: totalProt,
+            meals_count: Object.values(consumed).filter(g => g > 0).length,
+          };
+        }
+
+        setTodayReport(todayReport);
+      }
     } catch (error) {
       console.error('Error loading daily reports:', error);
     }
