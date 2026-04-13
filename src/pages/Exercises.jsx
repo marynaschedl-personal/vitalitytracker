@@ -1,15 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardCard, ProgressRing } from '@/components/ui';
 import { Plus, Trash2, Clock, X } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
+import { apiClient } from '@/api/apiClient';
+import moment from 'moment';
 
 export default function Exercises() {
   const { t } = useLanguage();
-  const [exercises, setExercises] = useState([
-    { id: 1, name: 'Push-ups', sets: 3, reps: 15 },
-  ]);
+  const [exercises, setExercises] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newExercise, setNewExercise] = useState({ name: '', sets: 3, reps: 10 });
+  const [loading, setLoading] = useState(true);
+
+  // Load exercises from daily report
+  useEffect(() => {
+    loadExercises();
+  }, []);
+
+  async function loadExercises() {
+    try {
+      const today = moment().format("YYYY-MM-DD");
+      const reports = await apiClient.entities.DailyReport.list();
+      const todayReport = reports.find((r) => moment(r.date).format("YYYY-MM-DD") === today);
+
+      if (todayReport && todayReport.exercises_list) {
+        setExercises(JSON.parse(todayReport.exercises_list));
+      } else {
+        setExercises([]);
+      }
+    } catch (error) {
+      console.error('Error loading exercises:', error);
+      setExercises([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function saveExercisesToDB(updatedExercises) {
+    try {
+      const today = moment().format("YYYY-MM-DD");
+      const reports = await apiClient.entities.DailyReport.list();
+      const todayReport = reports.find((r) => moment(r.date).format("YYYY-MM-DD") === today);
+
+      if (todayReport) {
+        await apiClient.entities.DailyReport.update(todayReport.id, {
+          date: today,
+          exercises_list: JSON.stringify(updatedExercises),
+          exercises_done: updatedExercises.length,
+        });
+      }
+    } catch (error) {
+      console.error('Error saving exercises:', error);
+    }
+  }
 
   const totalSets = exercises.reduce((sum, e) => sum + e.sets, 0);
   const totalReps = exercises.reduce((sum, e) => sum + (e.sets * e.reps), 0);
@@ -17,7 +60,9 @@ export default function Exercises() {
   const currentExercises = exercises.length;
 
   const removeExercise = (id) => {
-    setExercises(exercises.filter(e => e.id !== id));
+    const updated = exercises.filter(e => e.id !== id);
+    setExercises(updated);
+    saveExercisesToDB(updated);
   };
 
   const addExercise = () => {
@@ -28,10 +73,20 @@ export default function Exercises() {
       sets: parseInt(newExercise.sets) || 3,
       reps: parseInt(newExercise.reps) || 10,
     };
-    setExercises([...exercises, exercise]);
+    const updated = [...exercises, exercise];
+    setExercises(updated);
+    saveExercisesToDB(updated);
     setNewExercise({ name: '', sets: 3, reps: 10 });
     setShowAddForm(false);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
