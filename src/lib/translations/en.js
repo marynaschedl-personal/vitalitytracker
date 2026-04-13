@@ -288,6 +288,19 @@ export const en = {
   landing_cta_create: 'Create Your Account',
   landing_footer: '© 2026 VitalityTracker. All rights reserved.',
 
+  // Landing Page - New Sections
+  landing_how_title: 'How It Works',
+  landing_step1_title: 'Create Your Account',
+  landing_step1_desc: 'Sign up in seconds, no credit card required',
+  landing_step2_title: 'Set Your Baseline',
+  landing_step2_desc: 'Add your measurements and daily goals',
+  landing_step3_title: 'Track Every Day',
+  landing_step3_desc: 'Log food, steps and watch your progress',
+  landing_pricing_title: 'Simple Pricing',
+  landing_pricing_badge: 'Free Forever',
+  landing_pricing_desc: 'No subscriptions. No hidden fees.',
+  landing_cta_banner: 'Start your health journey today',
+
   // Feedback Button
   feedback_title: 'Send feedback',
   feedback_modal_heading: 'Send Feedback',

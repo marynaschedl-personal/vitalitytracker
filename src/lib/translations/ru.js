@@ -288,6 +288,19 @@ export const ru = {
   landing_cta_create: 'Создать аккаунт',
   landing_footer: '© 2026 VitalityTracker. Все права защищены.',
 
+  // Landing Page - New Sections
+  landing_how_title: 'Как это работает',
+  landing_step1_title: 'Создайте аккаунт',
+  landing_step1_desc: 'Зарегистрируйтесь за секунды, без кредитной карты',
+  landing_step2_title: 'Установите базовый уровень',
+  landing_step2_desc: 'Добавьте свои измерения и дневные цели',
+  landing_step3_title: 'Отслеживайте каждый день',
+  landing_step3_desc: 'Ведите дневник питания, шагов и смотрите прогресс',
+  landing_pricing_title: 'Простые цены',
+  landing_pricing_badge: 'Бесплатно навсегда',
+  landing_pricing_desc: 'Без подписок. Без скрытых платежей.',
+  landing_cta_banner: 'Начните свой путь к здоровью сегодня',
+
   // Feedback Button
   feedback_title: 'Отправить отзыв',
   feedback_modal_heading: 'Отправить отзыв',
