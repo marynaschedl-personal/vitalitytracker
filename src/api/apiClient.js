@@ -4,7 +4,7 @@
  * Manages JWT tokens and authenticated requests
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3100/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3021/api';
 
 class APIClient {
   constructor() {

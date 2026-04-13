@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/lib/LanguageContext';
+import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import FeedbackButton from '@/components/FeedbackButton';
 import { motion } from 'framer-motion';
@@ -21,6 +22,21 @@ const colors = {
 export default function Landing() {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { login } = useAuth();
+
+  const handleDemoLogin = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      console.log('Starting demo login...');
+      const result = await login('demo@example.com', 'demo123');
+      console.log('Login successful:', result);
+      navigate('/');
+    } catch (err) {
+      console.error('Demo login failed:', err);
+      alert('Demo login failed: ' + err.message);
+    }
+  };
 
   // Animation variants
   const fadeInUp = {
@@ -72,9 +88,34 @@ export default function Landing() {
           >
             {t('landing_app_name')}
           </h1>
-          <Button onClick={() => navigate('/login')} variant="outline">
-            {t('landing_login_btn')}
-          </Button>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <Button
+              onClick={() => navigate('/login')}
+              style={{
+                background: colors.primary,
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: 600,
+              }}
+            >
+              {t('landing_login_btn')}
+            </Button>
+            <Button
+              type="button"
+              onClick={handleDemoLogin}
+              style={{
+                background: '#3B82F6',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Demo
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -125,17 +166,6 @@ export default function Landing() {
               }}
             >
               {t('landing_cta_start')} <ArrowRight size={18} style={{ marginLeft: '0.5rem' }} />
-            </Button>
-            <Button
-              onClick={() => navigate('/register')}
-              variant="outline"
-              style={{
-                padding: '0.75rem 2rem',
-                fontSize: '1rem',
-                fontWeight: 600,
-              }}
-            >
-              Learn More
             </Button>
           </div>
         </motion.div>
