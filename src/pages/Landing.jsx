@@ -89,6 +89,25 @@ export default function Landing() {
             {t('landing_app_name')}
           </h1>
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <select
+              value={localStorage.getItem('language') || 'en'}
+              onChange={(e) => {
+                localStorage.setItem('language', e.target.value);
+                window.location.reload();
+              }}
+              style={{
+                padding: '0.5rem 0.75rem',
+                fontSize: '0.9rem',
+                border: `1px solid ${colors.border}`,
+                borderRadius: '0.5rem',
+                background: 'white',
+                color: colors.text,
+                cursor: 'pointer',
+              }}
+            >
+              <option value="en">English</option>
+              <option value="ru">Русский</option>
+            </select>
             <Button
               onClick={() => navigate('/login')}
               style={{
@@ -113,7 +132,7 @@ export default function Landing() {
                 cursor: 'pointer',
               }}
             >
-              Demo
+              {t('landing_demo_btn')}
             </Button>
           </div>
         </div>
@@ -142,7 +161,7 @@ export default function Landing() {
               marginBottom: '1rem',
             }}
           >
-            Track Your Health Journey
+            {t('landing_hero_heading')}
           </h2>
           <p
             style={{

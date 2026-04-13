@@ -267,6 +267,7 @@ export const ru = {
   // Landing Page
   landing_app_name: 'VitalityTracker',
   landing_login_btn: 'Войти',
+  landing_demo_btn: 'Демо',
   landing_hero_heading: 'Следите за своим здоровьем просто',
   landing_hero_paragraph: 'Без маркетинга. Просто простое отслеживание калорийности, шагов и образа жизни. Следите за своим ежедневным питанием, целями фитнеса и измерениями тела в одном месте.',
   landing_cta_start: 'Начать отслеживание бесплатно',
