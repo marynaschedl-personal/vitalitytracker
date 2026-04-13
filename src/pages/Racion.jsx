@@ -90,6 +90,27 @@ export default function Racion() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
 
+  // ── localStorage helpers ────────────────────────────────────────────────────
+  function getDailyKey() {
+    return `nutrition_${moment().format("YYYY-MM-DD")}`;
+  }
+
+  function loadFromLocalStorage() {
+    const key = getDailyKey();
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : {};
+  }
+
+  function saveToLocalStorage(data) {
+    const key = getDailyKey();
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+
+  function clearDailyLocalStorage() {
+    const key = getDailyKey();
+    localStorage.removeItem(key);
+  }
+
   useEffect(() => { loadData(); }, []);
 
   async function loadData() {
@@ -100,8 +121,9 @@ export default function Racion() {
       if (todayReport) {
         setTodayReport(todayReport);
       }
-      // Reset consumed map - food selections reset daily
-      setConsumed({});
+      // Load consumed from localStorage for today, or start fresh
+      const storedConsumed = loadFromLocalStorage();
+      setConsumed(storedConsumed);
     } catch (error) {
       console.error('Error loading daily report:', error);
     }
@@ -147,20 +169,20 @@ export default function Racion() {
   const kcalGoal = todayReport?.calories_goal || 1766;
 
   // ── Save ────────────────────────────────────────────────────────────────────
-  async function saveConsumed(newConsumed) {
+  async function saveToday() {
     setSaving(true);
     setSaveError(null);
     const today = moment().format("YYYY-MM-DD");
 
     try {
-      // Always fetch the latest report to preserve other fields
+      // Fetch the latest report to preserve other fields
       const allReports = await apiClient.entities.DailyReport.list();
       const latestReport = allReports.find((r) => {
         const reportDate = moment(r.date).format("YYYY-MM-DD");
         return reportDate === today;
       });
 
-      const meals = Object.entries(newConsumed)
+      const meals = Object.entries(consumed)
         .filter(([, g]) => g > 0)
         .map(([foodId, g]) => {
           const item = FOOD_DATA.find((f) => f.id === foodId);
@@ -199,6 +221,10 @@ export default function Racion() {
         });
         setTodayReport(created);
       }
+
+      // Clear daily data for next day
+      setConsumed({});
+      clearDailyLocalStorage();
       setSaving(false);
       return true;
     } catch (error) {
@@ -220,10 +246,8 @@ export default function Racion() {
     const finalVal = typeof sliderVal === "number" ? sliderVal : 0;
     const newConsumed = { ...consumed, [selected.id]: finalVal };
     setConsumed(newConsumed);
-    const success = await saveConsumed(newConsumed);
-    if (success) {
-      setSelected(null);
-    }
+    saveToLocalStorage(newConsumed);
+    setSelected(null);
   }
 
   if (loading) {
@@ -281,6 +305,20 @@ export default function Racion() {
           />
         </div>
       </div>
+
+      {/* Save Today Button */}
+      {saveError && (
+        <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
+          {saveError}
+        </div>
+      )}
+      <button
+        onClick={saveToday}
+        disabled={saving}
+        className="w-full mb-6 py-2 px-4 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        {saving ? t('racion_saving') : 'Save Today'}
+      </button>
 
       {/* Food list */}
       <div className="space-y-2">
