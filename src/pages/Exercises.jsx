@@ -6,13 +6,13 @@ import { useLanguage } from '@/lib/LanguageContext';
 export default function Exercises() {
   const { t } = useLanguage();
   const [exercises, setExercises] = useState([
-    { id: 1, name: 'Running', duration: 30, calories: 350, time: '06:30' },
+    { id: 1, name: 'Push-ups', sets: 3, reps: 15 },
   ]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newExercise, setNewExercise] = useState({ name: '', duration: 30, calories: 200, time: '' });
+  const [newExercise, setNewExercise] = useState({ name: '', sets: 3, reps: 10 });
 
-  const totalDuration = exercises.reduce((sum, e) => sum + e.duration, 0);
-  const totalCalories = exercises.reduce((sum, e) => sum + e.calories, 0);
+  const totalSets = exercises.reduce((sum, e) => sum + e.sets, 0);
+  const totalReps = exercises.reduce((sum, e) => sum + (e.sets * e.reps), 0);
   const exerciseGoal = 3;
   const currentExercises = exercises.length;
 
@@ -22,17 +22,14 @@ export default function Exercises() {
 
   const addExercise = () => {
     if (!newExercise.name.trim()) return;
-    const now = new Date();
-    const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
     const exercise = {
       id: Date.now(),
       name: newExercise.name,
-      duration: parseInt(newExercise.duration) || 30,
-      calories: parseInt(newExercise.calories) || 200,
-      time: newExercise.time || time,
+      sets: parseInt(newExercise.sets) || 3,
+      reps: parseInt(newExercise.reps) || 10,
     };
     setExercises([...exercises, exercise]);
-    setNewExercise({ name: '', duration: 30, calories: 200, time: '' });
+    setNewExercise({ name: '', sets: 3, reps: 10 });
     setShowAddForm(false);
   };
 
@@ -49,9 +46,9 @@ export default function Exercises() {
         </DashboardCard>
 
         <DashboardCard>
-          <p className="text-xs text-muted-foreground mb-1">{t('exercises_total_time')}</p>
-          <p className="text-3xl font-bold text-foreground">{totalDuration}m</p>
-          <p className="text-xs text-muted-foreground">{t('exercises_calories').replace('{N}', totalCalories)}</p>
+          <p className="text-xs text-muted-foreground mb-1">Total Sets</p>
+          <p className="text-3xl font-bold text-foreground">{totalSets}</p>
+          <p className="text-xs text-muted-foreground">Total Reps: {totalReps}</p>
         </DashboardCard>
       </div>
 
@@ -77,20 +74,20 @@ export default function Exercises() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Duration (min)</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Sets</label>
                 <input
                   type="number"
-                  value={newExercise.duration}
-                  onChange={(e) => setNewExercise({ ...newExercise, duration: e.target.value })}
+                  value={newExercise.sets}
+                  onChange={(e) => setNewExercise({ ...newExercise, sets: e.target.value })}
                   className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Calories Burned</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Reps</label>
                 <input
                   type="number"
-                  value={newExercise.calories}
-                  onChange={(e) => setNewExercise({ ...newExercise, calories: e.target.value })}
+                  value={newExercise.reps}
+                  onChange={(e) => setNewExercise({ ...newExercise, reps: e.target.value })}
                   className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -130,13 +127,7 @@ export default function Exercises() {
             >
               <div className="flex-1">
                 <p className="font-medium text-foreground">{exercise.name}</p>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Clock className="w-3 h-3" />
-                  {t('exercises_detail').replace('{N}', exercise.duration).replace('{N}', exercise.calories)}
-                </div>
-              </div>
-              <div className="text-right mr-3">
-                <p className="text-sm text-muted-foreground">{exercise.time}</p>
+                <p className="text-xs text-muted-foreground">{exercise.sets} sets × {exercise.reps} reps</p>
               </div>
               <button
                 onClick={() => removeExercise(exercise.id)}
