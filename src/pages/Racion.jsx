@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
+import toast from "react-hot-toast";
 import moment from "moment";
 
 // ─── Food catalogue ───────────────────────────────────────────────────────────
@@ -226,11 +227,15 @@ export default function Racion() {
       setConsumed({});
       clearDailyLocalStorage();
       setSaving(false);
+
+      // Show success notification
+      toast.success('Today\'s nutrition saved! 📊');
       return true;
     } catch (error) {
       console.error('Error saving nutrition data:', error);
       setSaveError(error.message || 'Failed to save nutrition data');
       setSaving(false);
+      toast.error('Failed to save nutrition data');
       return false;
     }
   }
