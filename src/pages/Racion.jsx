@@ -330,7 +330,7 @@ export default function Racion() {
           filteredFoods.map((item) => {
             const eaten = consumed[item.id] || 0;
             const full = isItemFull(item);
-            const hidden = !full && isHiddenByCategory(item) && eaten === 0;
+            const hidden = isHiddenByCategory(item) && eaten === 0;
             if (hidden) return null;
 
             const adjMax = getAdjustedMax(item);
