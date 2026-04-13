@@ -94,6 +94,7 @@ export const en = {
   food_brown_rice: 'Brown rice',
   food_whole_grain_bread: 'Whole grain bread',
   food_crackers: 'Crackers',
+  food_potatoes: 'Potatoes',
 
   // Food names (B - Protein)
   food_chicken_turkey: 'Chicken / turkey fillet',
@@ -115,6 +116,7 @@ export const en = {
   food_ketchup: 'Ketchup',
   food_mayonnaise: 'Mayonnaise',
   food_sauce: 'Garnish/sauce',
+  food_olives: 'Olives',
 
   // Food names (D - Dairy)
   food_kefir: 'Kefir 1%',

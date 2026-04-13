@@ -94,6 +94,7 @@ export const ru = {
   food_brown_rice: 'Коричневый рис',
   food_whole_grain_bread: 'Хлеб из цельного зерна',
   food_crackers: 'Крекеры',
+  food_potatoes: 'Картофель',
 
   // Food names (B - Protein)
   food_chicken_turkey: 'Филе курицы / индейки',
@@ -115,6 +116,7 @@ export const ru = {
   food_ketchup: 'Кетчуп',
   food_mayonnaise: 'Майонез',
   food_sauce: 'Гарнир/соус',
+  food_olives: 'Оливки',
 
   // Food names (D - Dairy)
   food_kefir: 'Кефир 1%',
