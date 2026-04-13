@@ -35,6 +35,14 @@ export default function Home() {
 
   useEffect(() => {
     loadData();
+    // Refresh data every time page becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [location.pathname]);
 
   async function loadData() {
