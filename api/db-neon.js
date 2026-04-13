@@ -132,6 +132,7 @@ export async function seedFoods() {
       ['a5', 'A', 'Brown rice', 248, 7.9, 75, 'g'],
       ['a6', 'A', 'Whole grain bread', 238, 8.5, 95, 'g'],
       ['a7', 'A', 'Crackers', 240, 7.9, 75, 'g'],
+      ['a8', 'A', 'Potatoes', 238, 6.2, 310, 'g'],
       // B – Protein
       ['b1', 'B', 'Chicken / turkey fillet', 402, 80.3, 355, 'g'],
       ['b2', 'B', 'Seafood', 400, 80, 400, 'g'],
@@ -150,6 +151,7 @@ export async function seedFoods() {
       ['g4', 'G', 'Ketchup', 133, 1.3, 130, 'g'],
       ['g5', 'G', 'Mayonnaise', 120, 0.3, 20, 'g'],
       ['g6', 'G', 'Garnish/sauce', 65, 3.6, 100, 'g'],
+      ['g7', 'G', 'Olives', 115, 1, 110, 'g'],
       // D – Dairy
       ['d1', 'D', 'Kefir 1%', 151, 10.3, 240, 'g'],
       ['d2', 'D', 'Milk 1%', 156, 10.4, 340, 'g'],

@@ -20,6 +20,7 @@ const FOOD_DATA = [
   { id: "a5", cat: "A", nameKey: "food_brown_rice", kcalPer100: 248, protPer100: 7.9, maxGrams: 75, unit: "g" },
   { id: "a6", cat: "A", nameKey: "food_whole_grain_bread", kcalPer100: 238, protPer100: 8.5, maxGrams: 95, unit: "g" },
   { id: "a7", cat: "A", nameKey: "food_crackers", kcalPer100: 240, protPer100: 7.9, maxGrams: 75, unit: "g" },
+  { id: "a8", cat: "A", nameKey: "food_potatoes", kcalPer100: 238, protPer100: 6.2, maxGrams: 310, unit: "g" },
   // B – Protein
   { id: "b1", cat: "B", nameKey: "food_chicken_turkey", kcalPer100: 402, protPer100: 80.3, maxGrams: 355, unit: "g" },
   { id: "b2", cat: "B", nameKey: "food_seafood", kcalPer100: 400, protPer100: 80, maxGrams: 400, unit: "g" },
@@ -38,6 +39,7 @@ const FOOD_DATA = [
   { id: "g4", cat: "G", nameKey: "food_ketchup", kcalPer100: 133, protPer100: 1.3, maxGrams: 130, unit: "g" },
   { id: "g5", cat: "G", nameKey: "food_mayonnaise", kcalPer100: 120, protPer100: 0.3, maxGrams: 20, unit: "g" },
   { id: "g6", cat: "G", nameKey: "food_sauce", kcalPer100: 65, protPer100: 3.6, maxGrams: 100, unit: "g" },
+  { id: "g7", cat: "G", nameKey: "food_olives", kcalPer100: 115, protPer100: 1, maxGrams: 110, unit: "g" },
   // D – Dairy
   { id: "d1", cat: "D", nameKey: "food_kefir", kcalPer100: 151, protPer100: 10.3, maxGrams: 240, unit: "g" },
   { id: "d2", cat: "D", nameKey: "food_milk", kcalPer100: 156, protPer100: 10.4, maxGrams: 340, unit: "g" },
@@ -215,7 +217,8 @@ export default function Racion() {
   }
 
   async function confirmItem() {
-    const newConsumed = { ...consumed, [selected.id]: sliderVal };
+    const finalVal = typeof sliderVal === "number" ? sliderVal : 0;
+    const newConsumed = { ...consumed, [selected.id]: finalVal };
     setConsumed(newConsumed);
     const success = await saveConsumed(newConsumed);
     if (success) {
@@ -232,8 +235,9 @@ export default function Racion() {
   }
 
   const selectedMax = selected ? getAdjustedMax(selected) : 0;
-  const selectedKcal = selected ? calcKcal(selected, sliderVal) : 0;
-  const selectedProt = selected ? calcProt(selected, sliderVal) : 0;
+  const sliderNumVal = typeof sliderVal === "number" ? sliderVal : 0;
+  const selectedKcal = selected ? calcKcal(selected, sliderNumVal) : 0;
+  const selectedProt = selected ? calcProt(selected, sliderNumVal) : 0;
   const catStats = selected ? getCatStats(selected.cat) : null;
 
   // Filter foods based on search query
@@ -372,13 +376,13 @@ export default function Racion() {
               {/* Slider and Input */}
               <div>
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                  <span>{t('racion_amount_grams').replace('{N}', sliderVal)}</span>
+                  <span>{t('racion_amount_grams').replace('{N}', sliderNumVal)}</span>
                   <span>{t('racion_max_grams').replace('{N}', selectedMax)}</span>
                 </div>
                 <Slider
-                  value={[sliderVal]}
+                  value={[sliderNumVal]}
                   min={0}
-                  max={Math.max(selectedMax, sliderVal)}
+                  max={Math.max(selectedMax, sliderNumVal)}
                   step={1}
                   onValueChange={([v]) => setSliderVal(v)}
                   className="my-2"
@@ -391,8 +395,17 @@ export default function Racion() {
                     max={Math.max(selectedMax, sliderVal)}
                     value={sliderVal}
                     onChange={(e) => {
-                      const val = Math.min(Math.max(0, Number(e.target.value) || 0), Math.max(selectedMax, sliderVal));
-                      setSliderVal(val);
+                      if (e.target.value === "") {
+                        setSliderVal("");
+                      } else {
+                        const val = Math.min(Math.max(0, Number(e.target.value)), Math.max(selectedMax, sliderVal));
+                        setSliderVal(val);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === "") {
+                        setSliderVal(0);
+                      }
                     }}
                     placeholder="0"
                     className="bg-secondary border-border"
