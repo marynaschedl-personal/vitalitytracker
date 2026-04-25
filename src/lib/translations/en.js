@@ -85,8 +85,10 @@ export const en = {
   racion_kcal: 'kcal',
   racion_confirm: 'Confirm',
   racion_saving: 'Saving...',
+  racion_already_consumed: 'Already consumed',
 
   // Food names (A - Carbs)
+  food_legumes: 'Legumes',
   food_whole_grain_flour: 'Whole-grain flour',
   food_corn_fresh: 'Corn (fresh)',
   food_lavash_bread: 'Lavash bread',

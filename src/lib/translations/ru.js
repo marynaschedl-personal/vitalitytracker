@@ -85,8 +85,10 @@ export const ru = {
   racion_kcal: 'ккал',
   racion_confirm: 'Подтвердить',
   racion_saving: 'Сохранение...',
+  racion_already_consumed: 'Уже съедено',
 
   // Food names (A - Carbs)
+  food_legumes: 'Бобовые',
   food_whole_grain_flour: 'Мука из цельного зерна',
   food_corn_fresh: 'Кукуруза (свежая)',
   food_lavash_bread: 'Лаваш',

@@ -14,14 +14,15 @@ import moment from "moment";
 // ─── Food catalogue ───────────────────────────────────────────────────────────
 const FOOD_DATA = [
   // A – Carbs
-  { id: "a1", cat: "A", nameKey: "food_whole_grain_flour", kcalPer100: 240, protPer100: 8.3, maxGrams: 75, unit: "g" },
-  { id: "a2", cat: "A", nameKey: "food_corn_fresh", kcalPer100: 239, protPer100: 6.2, maxGrams: 280, unit: "g" },
-  { id: "a3", cat: "A", nameKey: "food_lavash_bread", kcalPer100: 240, protPer100: 8, maxGrams: 100, unit: "g" },
-  { id: "a4", cat: "A", nameKey: "food_pasta", kcalPer100: 238, protPer100: 8.4, maxGrams: 70, unit: "g" },
-  { id: "a5", cat: "A", nameKey: "food_brown_rice", kcalPer100: 248, protPer100: 7.9, maxGrams: 75, unit: "g" },
-  { id: "a6", cat: "A", nameKey: "food_whole_grain_bread", kcalPer100: 238, protPer100: 8.5, maxGrams: 95, unit: "g" },
-  { id: "a7", cat: "A", nameKey: "food_crackers", kcalPer100: 240, protPer100: 7.9, maxGrams: 75, unit: "g" },
-  { id: "a8", cat: "A", nameKey: "food_potatoes", kcalPer100: 238, protPer100: 6.2, maxGrams: 310, unit: "g" },
+  { id: "a1", cat: "A", nameKey: "food_legumes", kcalPer100: 310, protPer100: 20, maxGrams: 75, unit: "g" },
+  { id: "a2", cat: "A", nameKey: "food_whole_grain_flour", kcalPer100: 320, protPer100: 12.5, maxGrams: 75, unit: "g" },
+  { id: "a3", cat: "A", nameKey: "food_corn_fresh", kcalPer100: 321, protPer100: 3.3, maxGrams: 280, unit: "g" },
+  { id: "a4", cat: "A", nameKey: "food_lavash_bread", kcalPer100: 240, protPer100: 8, maxGrams: 100, unit: "g" },
+  { id: "a5", cat: "A", nameKey: "food_pasta", kcalPer100: 238, protPer100: 8.4, maxGrams: 70, unit: "g" },
+  { id: "a6", cat: "A", nameKey: "food_brown_rice", kcalPer100: 330, protPer100: 7.5, maxGrams: 75, unit: "g" },
+  { id: "a7", cat: "A", nameKey: "food_whole_grain_bread", kcalPer100: 250, protPer100: 8.9, maxGrams: 95, unit: "g" },
+  { id: "a8", cat: "A", nameKey: "food_crackers", kcalPer100: 320, protPer100: 10, maxGrams: 75, unit: "g" },
+  { id: "a9", cat: "A", nameKey: "food_potatoes", kcalPer100: 77, protPer100: 0.2, maxGrams: 310, unit: "g" },
   // B – Protein
   { id: "b1", cat: "B", nameKey: "food_chicken_turkey", kcalPer100: 402, protPer100: 80.3, maxGrams: 355, unit: "g" },
   { id: "b2", cat: "B", nameKey: "food_seafood", kcalPer100: 400, protPer100: 80, maxGrams: 400, unit: "g" },
@@ -90,6 +91,7 @@ export default function Racion() {
   const [searchQuery, setSearchQuery] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [isAddMode, setIsAddMode] = useState(false);
 
   // ── localStorage helpers ────────────────────────────────────────────────────
   function getDailyKey() {
@@ -243,16 +245,26 @@ export default function Racion() {
   // ── Dialog confirm ──────────────────────────────────────────────────────────
   function openItem(item) {
     if (isHiddenByCategory(item) && !isItemFull(item) && (consumed[item.id] || 0) === 0) return;
+    setIsAddMode(false);
     setSelected(item);
     setSliderVal(consumed[item.id] || 0);
   }
 
+  function openAddItem(item) {
+    setIsAddMode(true);
+    setSelected(item);
+    setSliderVal(0);
+  }
+
   async function confirmItem() {
     const finalVal = typeof sliderVal === "number" ? sliderVal : 0;
-    const newConsumed = { ...consumed, [selected.id]: finalVal };
+    const base = isAddMode ? (consumed[selected.id] || 0) : 0;
+    const newTotal = base + finalVal;
+    const newConsumed = { ...consumed, [selected.id]: newTotal };
     setConsumed(newConsumed);
     saveToLocalStorage(newConsumed);
     setSelected(null);
+    setIsAddMode(false);
   }
 
   if (loading) {
@@ -265,8 +277,9 @@ export default function Racion() {
 
   const selectedMax = selected ? getAdjustedMax(selected) : 0;
   const sliderNumVal = typeof sliderVal === "number" ? sliderVal : 0;
-  const selectedKcal = selected ? calcKcal(selected, sliderNumVal) : 0;
-  const selectedProt = selected ? calcProt(selected, sliderNumVal) : 0;
+  const displayGrams = isAddMode && selected ? (consumed[selected.id] || 0) + sliderNumVal : sliderNumVal;
+  const selectedKcal = selected ? calcKcal(selected, displayGrams) : 0;
+  const selectedProt = selected ? calcProt(selected, displayGrams) : 0;
   const catStats = selected ? getCatStats(selected.cat) : null;
 
   // Filter foods based on search query
@@ -363,9 +376,20 @@ export default function Racion() {
                       </p>
                     </div>
                   </div>
-                  <span className="text-sm text-muted-foreground whitespace-nowrap ml-2">
-                    {displayConsumed}
-                  </span>
+                  <div className="flex items-center gap-2 ml-2">
+                    <span className="text-sm text-muted-foreground whitespace-nowrap">
+                      {displayConsumed}
+                    </span>
+                    {eaten > 0 && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); openAddItem(item); }}
+                        className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold hover:bg-primary/80 transition-colors shrink-0"
+                        title="Add more grams"
+                      >
+                        +
+                      </button>
+                    )}
+                  </div>
                 </div>
                 {eaten > 0 && (
                   <div className="mt-2 h-1 bg-secondary rounded-full">
@@ -396,13 +420,28 @@ export default function Racion() {
             </DialogHeader>
             <div className="space-y-4 text-sm">
               <div className="text-center">
-                <p className="text-muted-foreground text-xs">{t('racion_original_recommendation').replace('{N}', selected.maxGrams)}</p>
-                <p className="text-primary font-semibold">
-                  {t('racion_recommended_portion').replace('{N}', selectedMax)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t('racion_kcal_out_of').replace('{N}', calcKcal(selected, selectedMax)).replace('{N}', calcKcal(selected, selected.maxGrams))}
-                </p>
+                {isAddMode ? (
+                  <>
+                    <p className="text-muted-foreground text-xs">{t('racion_already_consumed')}</p>
+                    <p className="text-lg font-bold">
+                      <span className="text-muted-foreground">{consumed[selected.id] || 0}g</span>
+                      <span className="text-primary mx-1">+</span>
+                      <span className="text-primary">{sliderNumVal}g</span>
+                      <span className="text-muted-foreground mx-1">=</span>
+                      <span className="text-green-500 font-bold">{(consumed[selected.id] || 0) + sliderNumVal}g</span>
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-muted-foreground text-xs">{t('racion_original_recommendation').replace('{N}', selected.maxGrams)}</p>
+                    <p className="text-primary font-semibold">
+                      {t('racion_recommended_portion').replace('{N}', selectedMax)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t('racion_kcal_out_of').replace('{N}', calcKcal(selected, selectedMax)).replace('{N}', calcKcal(selected, selected.maxGrams))}
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Category progress */}
