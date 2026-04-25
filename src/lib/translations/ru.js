@@ -87,6 +87,15 @@ export const ru = {
   racion_saving: 'Сохранение...',
   racion_already_consumed: 'Уже съедено',
 
+  // ActionFAB
+  fab_add_food: 'Еда',
+  fab_measurement: 'Измерение',
+  fab_steps: 'Шаги',
+  fab_training: 'Тренировка',
+
+  // Settings dropdown
+  home_feedback: 'Обратная связь',
+
   // Food names (A - Carbs)
   food_legumes: 'Бобовые',
   food_whole_grain_flour: 'Мука из цельного зерна',

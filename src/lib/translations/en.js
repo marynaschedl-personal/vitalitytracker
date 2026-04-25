@@ -87,6 +87,15 @@ export const en = {
   racion_saving: 'Saving...',
   racion_already_consumed: 'Already consumed',
 
+  // ActionFAB
+  fab_add_food: 'Add Food',
+  fab_measurement: 'Measurement',
+  fab_steps: 'Steps',
+  fab_training: 'Training',
+
+  // Settings dropdown
+  home_feedback: 'Feedback',
+
   // Food names (A - Carbs)
   food_legumes: 'Legumes',
   food_whole_grain_flour: 'Whole-grain flour',
