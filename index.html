@@ -4,7 +4,12 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="VitalityTracker" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#667eea" />
     <link rel="manifest" href="/manifest.json" />
     <title>VitalityTracker - Simple Health & Fitness Tracking</title>
     <meta name="description" content="Track your daily nutrition, steps, and body measurements. Simple calorie intake, steps counter, and lifestyle tracking. No marketing fluff." />
@@ -57,5 +62,32 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .then(reg => {
+              console.log('Service Worker registered:', reg);
+            })
+            .catch(err => {
+              console.log('Service Worker registration failed:', err);
+            });
+        });
+      }
+
+      // Handle app installation
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        // Show install button/prompt here if desired
+      });
+
+      window.addEventListener('appinstalled', () => {
+        console.log('PWA was installed');
+      });
+    </script>
   </body>
 </html>
