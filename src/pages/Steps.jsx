@@ -109,6 +109,10 @@ export default function Steps() {
         });
         setTodayReport(created);
       }
+      // Also save to localStorage for auto-save tracking
+      const stepsKey = `steps_${today}`;
+      localStorage.setItem(stepsKey, JSON.stringify({ steps, timestamp: new Date().toISOString() }));
+
       setSaving(false);
       setShowEdit(false);
       setStepsInput("");

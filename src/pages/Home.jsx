@@ -73,6 +73,118 @@ export default function Home() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [location.pathname]);
 
+  // Auto-save daily data and reset at midnight
+  useEffect(() => {
+    const scheduleAutoSaveAndReset = () => {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      const msUntilMidnight = tomorrow - now;
+
+      const timeoutId = setTimeout(async () => {
+        // Save today's data before resetting
+        await autoSaveTodayData();
+
+        // Reset food and steps for new day
+        resetDailyData();
+
+        // Reload data for new day
+        loadData();
+
+        // Schedule next day's save
+        scheduleAutoSaveAndReset();
+      }, msUntilMidnight);
+
+      return timeoutId;
+    };
+
+    const timeoutId = scheduleAutoSaveAndReset();
+    return () => clearTimeout(timeoutId);
+  }, [todayReport]);
+
+  // Function to auto-save daily data
+  async function autoSaveTodayData() {
+    const today = moment().format("YYYY-MM-DD");
+    try {
+      // Calculate nutrition from localStorage
+      const consumed = localStorage.getItem(`nutrition_${today}`) ? JSON.parse(localStorage.getItem(`nutrition_${today}`)) : {};
+
+      let totalKcal = 0;
+      let totalProt = 0;
+      const FOOD_DATA_MINI = [
+        { id: "a1", kcalPer100: 310, protPer100: 20 },
+        { id: "a2", kcalPer100: 320, protPer100: 12.5 },
+        { id: "a3", kcalPer100: 321, protPer100: 3.3 },
+        { id: "a4", kcalPer100: 240, protPer100: 8 },
+        { id: "a5", kcalPer100: 238, protPer100: 8.4 },
+        { id: "a6", kcalPer100: 330, protPer100: 7.5 },
+        { id: "a7", kcalPer100: 250, protPer100: 8.9 },
+        { id: "a8", kcalPer100: 320, protPer100: 10 },
+        { id: "a9", kcalPer100: 77, protPer100: 0.2 },
+      ];
+
+      Object.entries(consumed).forEach(([foodId, grams]) => {
+        const food = FOOD_DATA_MINI.find(f => f.id === foodId);
+        if (food && grams > 0) {
+          totalKcal += Math.round((food.kcalPer100 * grams) / 100);
+          totalProt += +((food.protPer100 * grams) / 100).toFixed(1);
+        }
+      });
+
+      const mealsCount = Object.values(consumed).filter(g => g > 0).length;
+
+      // Get steps from localStorage
+      const stepsKey = `steps_${today}`;
+      const stepsData = localStorage.getItem(stepsKey) ? JSON.parse(localStorage.getItem(stepsKey)) : {};
+      const stepsCount = stepsData.steps || 0;
+
+      // Check if report exists, update or create
+      const allReports = await apiClient.entities.DailyReport.list();
+      const existingReport = allReports.find((r) => r.date === today);
+
+      if (existingReport) {
+        await apiClient.entities.DailyReport.update(existingReport.id, {
+          date: today,
+          steps: stepsCount,
+          calories_consumed: totalKcal,
+          protein_consumed: totalProt,
+          meals_count: mealsCount,
+          exercises_done: existingReport.exercises_done || 0,
+          submitted: true,
+        });
+      } else {
+        await apiClient.entities.DailyReport.create({
+          date: today,
+          steps: stepsCount,
+          calories_consumed: totalKcal,
+          protein_consumed: totalProt,
+          meals_count: mealsCount,
+          exercises_done: 0,
+          submitted: true,
+        });
+      }
+
+      console.log(`Auto-saved daily report for ${today}`);
+    } catch (error) {
+      console.error('Auto-save error:', error);
+    }
+  }
+
+  // Function to reset daily data at midnight
+  function resetDailyData() {
+    const today = moment().format("YYYY-MM-DD");
+
+    // Clear nutrition data for today
+    localStorage.removeItem(`nutrition_${today}`);
+
+    // Clear steps data for today
+    localStorage.removeItem(`steps_${today}`);
+
+    console.log(`Reset daily data for ${today}`);
+  }
+
   async function loadData() {
     const today = moment().format("YYYY-MM-DD");
 
@@ -366,40 +478,6 @@ export default function Home() {
             </DashboardCard>
           );
         })}
-
-
-        {!todayReport?.submitted && (
-          <button
-            className="w-full py-3 bg-primary rounded-2xl text-primary-foreground font-medium flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
-            onClick={async () => {
-              const today = moment().format("YYYY-MM-DD");
-
-              // Gather all data for today
-              const caloriesConsumed = report.calories_consumed || 0;
-              const proteinConsumed = report.protein_consumed || 0;
-              const stepsCount = report.steps || 0;
-              const exercisesDone = report.exercises_done || 0;
-              const mealsCount = report.meals_count || 0;
-
-              // Create today's report with all data via API
-              const created = await apiClient.entities.DailyReport.create({
-                date: today,
-                steps: stepsCount,
-                calories_consumed: caloriesConsumed,
-                protein_consumed: proteinConsumed,
-                exercises_done: exercisesDone,
-                meals_count: mealsCount,
-                submitted: true,
-              });
-
-              setTodayReport(created);
-              alert(t('home_report_saved').replace('{date}', today));
-            }}
-          >
-            <CheckCircle className="w-5 h-5" />
-            {t('home_save_today')}
-          </button>
-        )}
       </div>
 
       {/* Feedback Modal */}
