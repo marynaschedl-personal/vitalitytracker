@@ -3,7 +3,7 @@ import { apiClient } from "@/api/apiClient";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { useLanguage } from "@/lib/LanguageContext";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, X, Plus } from "lucide-react";
 import DashboardCard from "@/components/ui/DashboardCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -201,6 +201,16 @@ export default function Steps() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Update Steps FAB */}
+      <button
+        onClick={() => setShowEdit(true)}
+        className="fixed bottom-24 right-6 bg-primary text-primary-foreground rounded-full px-4 py-3 shadow-lg flex items-center gap-2 text-sm font-medium hover:bg-primary/90 active:scale-95 transition-all z-40"
+        title={t('steps_edit_btn')}
+      >
+        <Plus className="w-4 h-4" />
+        {t('steps_edit_btn')}
+      </button>
     </div>
   );
 }
