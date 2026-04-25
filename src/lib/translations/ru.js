@@ -69,6 +69,21 @@ export const ru = {
   settings_no_reports: 'Сохраненных отчетов еще нет',
   settings_logout_btn: 'Выход',
 
+  // Version Tracking
+  settings_version: 'Версия',
+  settings_version_current: 'Текущая версия: {version}',
+  settings_version_label: 'v',
+  settings_version_released: 'Выпущено',
+  settings_version_latest: 'Последняя',
+  settings_version_changelog: 'История изменений',
+  settings_version_initial_release: 'Первый выпуск с отслеживанием питания, шагов, упражнений и измерений',
+  settings_version_increment_food: 'Добавлена кнопка "+" для пошагового увеличения количества грамм продуктов',
+  settings_version_legumes_item: 'Добавлены Бобовые в список продуктов с правильной пищевой ценностью',
+  settings_version_action_fab: 'Новая расширяемая кнопка быстрых действий (Еда, Измерение, Шаги, Тренировка)',
+  settings_version_feedback_dropdown: 'Форма обратной связи перемещена в меню настроек',
+  settings_version_update_measurement_btn: 'Добавлена плавающая кнопка "Обновить измерение" на странице деталей измерений',
+  settings_version_fab_steps: 'Добавлена плавающая кнопка "Обновить" на странице шагов',
+
   // Racion (Nutrition) Page
   racion_title: 'Питание',
   racion_search_placeholder: 'Поиск продуктов...',

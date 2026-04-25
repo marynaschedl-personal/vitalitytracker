@@ -1,11 +1,46 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { useLanguage } from "@/lib/LanguageContext";
 import { apiClient } from "@/api/apiClient";
 import DashboardCard from "@/components/ui/DashboardCard";
 import moment from "moment";
+
+// Version history
+const VERSION_HISTORY = [
+  {
+    version: "1.2.1",
+    date: "2026-04-25",
+    changes: [
+      "settings_version_fab_steps",
+    ],
+  },
+  {
+    version: "1.2.0",
+    date: "2026-04-25",
+    changes: [
+      "settings_version_action_fab",
+      "settings_version_feedback_dropdown",
+      "settings_version_update_measurement_btn",
+    ],
+  },
+  {
+    version: "1.1.0",
+    date: "2026-04-25",
+    changes: [
+      "settings_version_increment_food",
+      "settings_version_legumes_item",
+    ],
+  },
+  {
+    version: "1.0.0",
+    date: "2026-04-13",
+    changes: [
+      "settings_version_initial_release",
+    ],
+  },
+];
 
 // Get all reports for current user
 const getSubmittedReportsForUser = async () => {
@@ -100,6 +135,7 @@ export default function Settings() {
   const [currentTheme, setCurrentTheme] = useState("dark");
   const [submittedReports, setSubmittedReports] = useState([]);
   const [loadingReports, setLoadingReports] = useState(true);
+  const [expandedVersion, setExpandedVersion] = useState(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("theme");
@@ -229,6 +265,65 @@ export default function Settings() {
         ) : (
           <p className="text-sm text-muted-foreground">{t('settings_no_reports')}</p>
         )}
+      </DashboardCard>
+
+      {/* Version History */}
+      <DashboardCard className="mb-4">
+        <h2 className="font-semibold mb-2">{t('settings_version')}</h2>
+        <p className="text-xs text-muted-foreground mb-4">{t('settings_version_current').replace('{version}', VERSION_HISTORY[0].version)}</p>
+
+        {/* Current Version */}
+        <div className="p-3 bg-primary/10 border border-primary/30 rounded-lg mb-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="font-semibold text-sm">{t('settings_version_label')} {VERSION_HISTORY[0].version}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t('settings_version_released')} {moment(VERSION_HISTORY[0].date).format("MMM DD, YYYY")}
+              </p>
+            </div>
+            <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full font-medium">{t('settings_version_latest')}</span>
+          </div>
+        </div>
+
+        {/* Changelog */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground mb-3">{t('settings_version_changelog')}</p>
+          {VERSION_HISTORY.map((versionItem) => (
+            <button
+              key={versionItem.version}
+              onClick={() => setExpandedVersion(expandedVersion === versionItem.version ? null : versionItem.version)}
+              className="w-full p-3 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors text-left"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-sm">{t('settings_version_label')} {versionItem.version}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {moment(versionItem.date).format("MMM DD, YYYY")}
+                  </p>
+                </div>
+                <ChevronDown
+                  className={`w-4 h-4 text-muted-foreground transition-transform ${
+                    expandedVersion === versionItem.version ? "rotate-180" : ""
+                  }`}
+                />
+              </div>
+
+              {/* Expanded Changes */}
+              {expandedVersion === versionItem.version && (
+                <div className="mt-3 pt-3 border-t border-border/50">
+                  <ul className="space-y-2">
+                    {versionItem.changes.map((changeKey, idx) => (
+                      <li key={idx} className="text-xs text-foreground flex items-start gap-2">
+                        <span className="text-primary mt-0.5">•</span>
+                        <span>{t(changeKey)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
       </DashboardCard>
 
       <button

@@ -69,6 +69,21 @@ export const en = {
   settings_no_reports: 'No saved reports yet',
   settings_logout_btn: 'Logout',
 
+  // Version Tracking
+  settings_version: 'Version',
+  settings_version_current: 'Current version: {version}',
+  settings_version_label: 'v',
+  settings_version_released: 'Released',
+  settings_version_latest: 'Latest',
+  settings_version_changelog: 'Changelog',
+  settings_version_initial_release: 'Initial release with nutrition, steps, exercises, and measurements tracking',
+  settings_version_increment_food: 'Add "+" button to increment food grams incrementally',
+  settings_version_legumes_item: 'Add Legumes (Бобові) to food list with correct nutritional values',
+  settings_version_action_fab: 'New expandable quick actions FAB (Add Food, Measurement, Steps, Training)',
+  settings_version_feedback_dropdown: 'Move feedback form to settings dropdown menu',
+  settings_version_update_measurement_btn: 'Add "Update measurement" floating button on measurement detail page',
+  settings_version_fab_steps: 'Add "Update" floating button on steps page',
+
   // Racion (Nutrition) Page
   racion_title: 'Nutrition',
   racion_search_placeholder: 'Search foods...',
